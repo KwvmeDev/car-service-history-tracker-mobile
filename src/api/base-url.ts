@@ -8,7 +8,16 @@ import Constants from 'expo-constants'
  *
  * Never hard-coded at a call site (engineering-standards.md §Frontend).
  */
-export const apiBaseUrl: string =
-  process.env.EXPO_PUBLIC_API_BASE_URL ??
-  (Constants.expoConfig?.extra?.['apiBaseUrl'] as string | undefined) ??
-  'http://localhost:3000'
+function fromExpoConfig(): string | undefined {
+  const extra: unknown = Constants.expoConfig?.extra
+  if (extra && typeof extra === 'object' && 'apiBaseUrl' in extra) {
+    const value: unknown = (extra as Record<'apiBaseUrl', unknown>).apiBaseUrl
+    return typeof value === 'string' ? value : undefined
+  }
+  return undefined
+}
+
+const envUrl = process.env.EXPO_PUBLIC_API_BASE_URL
+const fromEnv = typeof envUrl === 'string' && envUrl.length > 0 ? envUrl : undefined
+
+export const apiBaseUrl: string = fromEnv ?? fromExpoConfig() ?? 'http://localhost:3000'

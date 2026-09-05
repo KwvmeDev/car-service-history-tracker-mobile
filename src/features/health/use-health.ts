@@ -2,42 +2,28 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { api } from '@/api/generated/client'
 
-export type HealthState =
-  | { phase: 'loading' }
-  | { phase: 'error'; message: string; retry: () => void }
-  | { phase: 'degraded'; status: string; version: string; time: string; retry: () => void }
-  | { phase: 'loaded'; status: string; version: string; time: string }
+import { toHealthSnapshot, type HealthSnapshot } from './health-snapshot'
 
-/**
- * Sprint 0's one data hook. Deliberately minimal — TanStack Query lands in Phase 1
- * (engineering-standards.md §Frontend). Every screen state is represented so the UI
- * can render all four deliberately.
- */
+export type { HealthSnapshot } from './health-snapshot'
+export type HealthState = HealthSnapshot & { retry: () => void }
+
+/** Sprint 0's one data hook. TanStack Query lands in Phase 1 (engineering-standards.md). */
 export function useHealth(): HealthState {
-  const [state, setState] = useState<HealthState>({ phase: 'loading' })
+  const [snapshot, setSnapshot] = useState<HealthSnapshot>({ phase: 'loading' })
 
   const load = useCallback(() => {
-    setState({ phase: 'loading' })
+    setSnapshot({ phase: 'loading' })
     void api
       .GET('/v1/health')
-      .then(({ data, error }) => {
-        if (error !== undefined || data === undefined) {
-          setState({ phase: 'error', message: 'The api could not be reached.', retry: load })
-          return
-        }
-        const view = { status: data.status, version: data.version, time: data.time }
-        setState(
-          data.status === 'ok'
-            ? { phase: 'loaded', ...view }
-            : { phase: 'degraded', ...view, retry: load },
-        )
+      .then((result) => {
+        setSnapshot(toHealthSnapshot(result))
       })
       .catch(() => {
-        setState({ phase: 'error', message: 'The api could not be reached.', retry: load })
+        setSnapshot({ phase: 'error', message: 'The api could not be reached.' })
       })
   }, [])
 
   useEffect(load, [load])
 
-  return state
+  return { ...snapshot, retry: load }
 }

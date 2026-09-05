@@ -16,6 +16,7 @@ export default tseslint.config(
       'src/api/generated/**',
       '*.config.mjs',
       '*.config.js',
+      '*.config.ts',
       'expo-env.d.ts',
     ],
   },

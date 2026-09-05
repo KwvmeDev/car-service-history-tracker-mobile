@@ -4,7 +4,7 @@ dist/
 web-build/
 coverage/
 *.tsbuildinfo
-expo-env.d.ts
+# expo-env.d.ts is committed (see file header)
 .DS_Store
 *.orig.*
 .env

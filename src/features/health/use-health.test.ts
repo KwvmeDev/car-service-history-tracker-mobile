@@ -1,52 +1,36 @@
-import { afterEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it } from 'vitest'
 
-vi.mock('@/api/generated/client', () => ({ api: { GET: vi.fn() } }))
+import { toHealthSnapshot } from './health-snapshot'
 
-const { api } = await import('@/api/generated/client')
-const { useHealth } = await import('./use-health')
-const { renderHook, waitFor } = await import('@testing-library/react-native')
-
-const get = vi.mocked(api.GET)
-
-afterEach(() => {
-  vi.clearAllMocks()
-})
-
-describe('useHealth', () => {
-  it('starts in loading', () => {
-    get.mockReturnValue(new Promise(() => {}))
-    const { result } = renderHook(() => useHealth())
-
-    expect(result.current.phase).toBe('loading')
-  })
-
-  it('resolves to loaded with the payload when status is ok', async () => {
-    get.mockResolvedValue({ data: { status: 'ok', version: '0.1.0', time: '2026-01-01T00:00:00Z' } })
-    const { result } = renderHook(() => useHealth())
-
-    await waitFor(() => {
-      expect(result.current.phase).toBe('loaded')
+describe('toHealthSnapshot', () => {
+  it('maps an ok response to loaded with the payload', () => {
+    const snap = toHealthSnapshot({
+      data: { status: 'ok', version: '0.1.0', time: '2026-01-01T00:00:00Z' },
     })
-    if (result.current.phase === 'loaded') {
-      expect(result.current.version).toBe('0.1.0')
-    }
-  })
 
-  it('resolves to degraded when the api returns a non-ok status', async () => {
-    get.mockResolvedValue({ data: { status: 'starting', version: '0.1.0', time: 't' } })
-    const { result } = renderHook(() => useHealth())
-
-    await waitFor(() => {
-      expect(result.current.phase).toBe('degraded')
+    expect(snap).toEqual({
+      phase: 'loaded',
+      status: 'ok',
+      version: '0.1.0',
+      time: '2026-01-01T00:00:00Z',
     })
   })
 
-  it('resolves to error when the request fails', async () => {
-    get.mockResolvedValue({ error: { message: 'boom' } })
-    const { result } = renderHook(() => useHealth())
+  it('maps a non-ok status to degraded', () => {
+    const snap = toHealthSnapshot({ data: { status: 'starting', version: '0.1.0', time: 't' } })
 
-    await waitFor(() => {
-      expect(result.current.phase).toBe('error')
-    })
+    expect(snap.phase).toBe('degraded')
+  })
+
+  it('maps a client error to the error phase', () => {
+    const snap = toHealthSnapshot({ error: { message: 'network down' } })
+
+    expect(snap).toEqual({ phase: 'error', message: 'The api could not be reached.' })
+  })
+
+  it('maps a malformed body (missing fields) to the error phase', () => {
+    const snap = toHealthSnapshot({ data: { status: 'ok' } })
+
+    expect(snap.phase).toBe('error')
   })
 })

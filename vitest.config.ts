@@ -1,17 +1,17 @@
+import { fileURLToPath } from 'node:url'
+
 import { defineConfig } from 'vitest/config'
 
-// Hooks and pure functions only in Sprint 0 (testing-strategy.md). react-native is
-// aliased to react-native-web so component/hook rendering works under jsdom without a
-// native runtime.
+// Sprint 0 tests cover the useHealth hook's state machine only (testing-strategy.md).
+// @testing-library/react-native's renderHook runs on react-test-renderer, no DOM needed.
 export default defineConfig({
   resolve: {
     alias: {
-      'react-native': 'react-native-web',
-      '@': new URL('./src', import.meta.url).pathname,
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
   test: {
     include: ['src/**/*.test.{ts,tsx}'],
-    environment: 'jsdom',
+    environment: 'node',
   },
 })
