@@ -1,0 +1,67 @@
+{
+  "components": {
+    "schemas": {}
+  },
+  "info": {
+    "description": "Revv REST API. The human spec is docs/api-contract.md.",
+    "title": "revv-api",
+    "version": "0.1.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/v1/health": {
+      "get": {
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "additionalProperties": false,
+                  "description": "Service health and build identity",
+                  "properties": {
+                    "status": {
+                      "enum": [
+                        "ok"
+                      ],
+                      "type": "string"
+                    },
+                    "time": {
+                      "format": "date-time",
+                      "type": "string"
+                    },
+                    "version": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "status",
+                    "version",
+                    "time"
+                  ],
+                  "type": "object"
+                }
+              }
+            },
+            "description": "Service health and build identity"
+          }
+        },
+        "summary": "Service health",
+        "tags": [
+          "system"
+        ]
+      }
+    }
+  },
+  "servers": [
+    {
+      "description": "local",
+      "url": "http://localhost:3000"
+    }
+  ],
+  "tags": [
+    {
+      "description": "Health and metadata",
+      "name": "system"
+    }
+  ]
+}
