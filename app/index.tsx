@@ -1,6 +1,8 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
 import { color, radius, space, text } from '@revv/tokens'
 
+import { textStyle } from '@/ui/typography'
+
 import { useHealth } from '@/features/health/use-health'
 
 // Sprint 0: one screen, the API health response through the generated client, all four
@@ -70,8 +72,8 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: color.hairline,
   },
-  label: { color: color.navySubtle, fontSize: text.label.fontSize, lineHeight: text.label.lineHeight },
-  value: { color: color.white, fontFamily: 'JetBrains Mono', fontSize: text.mono.fontSize },
+  label: { color: color.navySubtle, ...textStyle('label') },
+  value: { color: color.white, ...textStyle('mono') },
   notice: {
     marginTop: space[3],
     padding: space[3],
