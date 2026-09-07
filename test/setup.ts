@@ -14,6 +14,31 @@
 
 jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'))
 
+// expo-linking needs the native expo-constants manifest to resolve a scheme; in the
+// test runtime there is none, so stub the deep-link surface with the revv:// scheme.
+jest.mock('expo-linking', () => ({
+  createURL: (path: string) => `revv://${path.replace(/^\/+/, '')}`,
+  parse: (url: string) => {
+    const scheme = url.split('://')[0] ?? null
+    const rest = url.split('://')[1] ?? ''
+    const path = rest.split('?')[0] ?? ''
+    const query = rest.split('?')[1] ?? ''
+    const queryParams: Record<string, string> = {}
+    for (const pair of query.split('&')) {
+      if (!pair) continue
+      const key = pair.split('=')[0] ?? ''
+      const value = pair.split('=')[1] ?? ''
+      if (key.length > 0) {
+        queryParams[decodeURIComponent(key)] = decodeURIComponent(value)
+      }
+    }
+    return { scheme, hostname: null, path: path.length > 0 ? path : null, queryParams }
+  },
+  useURL: () => null,
+  getInitialURL: () => Promise.resolve(null),
+  addEventListener: () => ({ remove: () => undefined }),
+}))
+
 jest.mock('react-native-mmkv', () => {
   class MMKV {
     private readonly store = new Map<string, string | number | boolean | Uint8Array>()
@@ -62,6 +87,10 @@ jest.mock('expo-secure-store', () => {
   return {
     WHEN_UNLOCKED: 'whenUnlocked',
     WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'whenUnlockedThisDeviceOnly',
+    setItem: jest.fn((key: string, value: string): void => {
+      store.set(key, value)
+    }),
+    getItem: jest.fn((key: string): string | null => store.get(key) ?? null),
     setItemAsync: jest.fn((key: string, value: string): Promise<void> => {
       store.set(key, value)
       return Promise.resolve()

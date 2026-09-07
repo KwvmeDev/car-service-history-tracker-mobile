@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { api } from '@/api/generated/client'
+import { api } from '@/api/client'
 
 import { toHealthSnapshot, type HealthSnapshot } from './health-snapshot'
 

@@ -1,12 +1,12 @@
 import { render, screen } from '@testing-library/react-native'
 
-import { api } from '@/api/generated/client'
+import { api } from '@/api/client'
 
 import HealthScreen from './index'
 
-// The generated client is the seam. The screen's four states are driven entirely by
-// what api.GET resolves/rejects with (docs/testing-strategy.md — test the states, not fetch).
-jest.mock('@/api/generated/client', () => ({
+// The api wrapper is the seam. The screen's four states are driven entirely by what
+// api.GET resolves/rejects with (docs/testing-strategy.md — test the states, not fetch).
+jest.mock('@/api/client', () => ({
   api: { GET: jest.fn() },
 }))
 
