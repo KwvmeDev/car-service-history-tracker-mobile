@@ -1,5 +1,3 @@
-import { describe, expect, it } from 'vitest'
-
 import { toHealthSnapshot } from './health-snapshot'
 
 describe('toHealthSnapshot', () => {
