@@ -1,20 +1,68 @@
 import { useEffect } from 'react'
+import { View } from 'react-native'
 import { Inter_400Regular, Inter_500Medium } from '@expo-google-fonts/inter'
 import { JetBrainsMono_400Regular } from '@expo-google-fonts/jetbrains-mono'
 import { useFonts } from 'expo-font'
-import { SplashScreen, Stack } from 'expo-router'
+import { SplashScreen, Stack, useRouter, useSegments } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { color, text } from '@revv/tokens'
 
 import { QueryProvider } from '@/data/QueryProvider'
+import { useSession } from '@/features/auth/use-session'
 
-// Root layout. Screen chrome pulls colour and type from @revv/tokens — no raw
-// literals anywhere in this repo.
-//
+// Root layout. Screen chrome pulls colour and type from @revv/tokens — no raw literals.
 // The splash is held until Inter (400/500) and JetBrains Mono (400) are in memory so
 // the app never paints a fallback-font frame (docs/design-system.md §Typography).
 void SplashScreen.preventAutoHideAsync()
+
+const AUTH_ROUTES = new Set(['sign-in', 'sign-up', 'verify-email'])
+
+/**
+ * Redirects between the auth routes and the app depending on the session (ADR 0003).
+ * A warm start has the session cached in SecureStore so `status` resolves without a
+ * spinner.
+ */
+function AuthGate() {
+  const { status } = useSession()
+  const segments = useSegments()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (status === 'loading') return
+    const onAuthRoute = AUTH_ROUTES.has(segments[0] ?? '')
+    if (status === 'unauthenticated' && !onAuthRoute) {
+      router.replace('/sign-in')
+    } else if (status === 'authenticated' && onAuthRoute) {
+      router.replace('/garage')
+    }
+  }, [status, segments, router])
+
+  return (
+    <Stack
+      screenOptions={{
+        headerStyle: { backgroundColor: color.navy },
+        headerTintColor: color.white,
+        headerTitleStyle: { fontSize: text.title.fontSize },
+        contentStyle: { backgroundColor: color.white },
+        animation: 'slide_from_right',
+        animationDuration: 320,
+      }}
+    >
+      <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="sign-in" options={{ headerShown: false }} />
+      <Stack.Screen name="sign-up" options={{ title: 'Create your account' }} />
+      <Stack.Screen name="verify-email" options={{ title: 'Verify your email' }} />
+      <Stack.Screen name="garage" options={{ title: 'Garage' }} />
+      <Stack.Screen
+        name="vehicle/new"
+        options={{ title: 'Add a vehicle', presentation: 'modal' }}
+      />
+      <Stack.Screen name="vehicle/[id]" options={{ title: '' }} />
+      <Stack.Screen name="dev-health" options={{ title: 'Api status' }} />
+    </Stack>
+  )
+}
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
@@ -30,23 +78,14 @@ export default function RootLayout() {
   }, [fontsLoaded, fontError])
 
   if (!fontsLoaded && !fontError) {
-    return null
+    return <View style={{ flex: 1, backgroundColor: color.white }} />
   }
 
   return (
     <QueryProvider>
       <SafeAreaProvider>
         <StatusBar style="light" />
-        <Stack
-          screenOptions={{
-            headerStyle: { backgroundColor: color.navy },
-            headerTintColor: color.white,
-            headerTitleStyle: { fontSize: text.title.fontSize },
-            contentStyle: { backgroundColor: color.white },
-          }}
-        >
-          <Stack.Screen name="index" options={{ title: 'Api status' }} />
-        </Stack>
+        <AuthGate />
       </SafeAreaProvider>
     </QueryProvider>
   )

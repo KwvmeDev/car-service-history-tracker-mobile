@@ -2,6 +2,7 @@
 export { AppText, type AppTextProps } from './Text'
 export { Button, type ButtonProps } from './Button'
 export { Card, type CardProps } from './Card'
+export { Field, type FieldProps } from './Field'
 export { Badge, type BadgeProps, type BadgeStatus } from './Badge'
 export { StatRow, type Stat, type StatRowProps } from './StatRow'
 export { Skeleton, VehicleCardSkeleton, type SkeletonProps } from './Skeleton'
