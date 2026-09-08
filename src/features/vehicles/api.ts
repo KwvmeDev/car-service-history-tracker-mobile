@@ -11,8 +11,13 @@ import type {
 
 /** Thin transport functions — one call each, no logic (engineering-standards.md §Layering). */
 
-export async function listVehicles(): Promise<VehicleListItem[]> {
-  const page = unwrap(await api.GET('/v1/vehicles', { params: { query: { limit: 100 } } }))
+/** How the garage list is ordered (Sprint 8). `recent` is the server default. */
+export type GarageSort = 'recent' | 'nickname' | 'mileage'
+
+export async function listVehicles(sort: GarageSort = 'recent'): Promise<VehicleListItem[]> {
+  const page = unwrap(
+    await api.GET('/v1/vehicles', { params: { query: { limit: 100, sort } } }),
+  )
   return page.data
 }
 

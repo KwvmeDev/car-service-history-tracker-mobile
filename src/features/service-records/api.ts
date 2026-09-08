@@ -6,14 +6,28 @@ import type {
   PatchServiceRecordBody,
   ServiceRecord,
   ServiceType,
+  TimelineFilter,
 } from './types'
 
 /** Thin transport — one call each, no logic (engineering-standards.md §Layering). */
 
-export async function listServiceRecords(vehicleId: string): Promise<ServiceRecord[]> {
+export async function listServiceRecords(
+  vehicleId: string,
+  filter: TimelineFilter = {},
+): Promise<ServiceRecord[]> {
+  const q = filter.q?.trim()
   const page = unwrap(
     await api.GET('/v1/vehicles/{vehicleId}/service-records', {
-      params: { path: { vehicleId }, query: { limit: 100 } },
+      params: {
+        path: { vehicleId },
+        query: {
+          limit: 100,
+          ...(q ? { q } : {}),
+          ...(filter.serviceTypeKey ? { serviceTypeKey: filter.serviceTypeKey } : {}),
+          ...(filter.from ? { from: filter.from } : {}),
+          ...(filter.to ? { to: filter.to } : {}),
+        },
+      },
     }),
   )
   return page.data

@@ -87,6 +87,19 @@ describe('useVehicles', () => {
     await waitFor(() => {
       expect(result.current.isSuccess).toBe(true)
     })
-    expect(mockApi.listVehicles).toHaveBeenCalled()
+    expect(mockApi.listVehicles).toHaveBeenCalledWith('recent')
+  })
+
+  it('passes the sort key through and caches per sort (Sprint 8)', async () => {
+    const client = new QueryClient()
+    mockApi.listVehicles.mockResolvedValue([])
+
+    const { result } = renderHook(() => useVehicles('mileage'), { wrapper: wrapper(client) })
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true)
+    })
+    expect(mockApi.listVehicles).toHaveBeenCalledWith('mileage')
+    expect(client.getQueryData(vehicleKeys.list('mileage'))).toEqual([])
+    expect(client.getQueryData(vehicleKeys.list('recent'))).toBeUndefined()
   })
 })

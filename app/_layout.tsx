@@ -15,6 +15,7 @@ import { color, text } from '@revv/tokens'
 
 import { QueryProvider } from '@/data/QueryProvider'
 import { useSession } from '@/features/auth/use-session'
+import { usePushRegistration } from '@/features/notifications/use-push-registration'
 import { configureReminderNotifications } from '@/features/reminders/notifications'
 import { resolveFontFamily } from '@/ui/typography'
 
@@ -36,6 +37,8 @@ function AuthGate() {
   const { status } = useSession()
   const segments = useSegments()
   const router = useRouter()
+
+  usePushRegistration(status === 'authenticated')
 
   useEffect(() => {
     if (status === 'loading') return

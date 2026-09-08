@@ -1,11 +1,13 @@
-import { useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { StyleSheet, View } from 'react-native'
 import { space } from '@revv/tokens'
 
 import { AppText, Button, ErrorState, Skeleton } from '@/ui'
 
 import { TimelineEntry } from './TimelineEntry'
+import { TimelineFilters } from './TimelineFilters'
 import { useServiceRecords } from './hooks'
+import { hasActiveFilter, type TimelineFilter } from './types'
 import { useServiceTypes } from './use-service-types'
 
 export interface TimelineProps {
@@ -14,19 +16,38 @@ export interface TimelineProps {
   onEntryPress: (recordId: string) => void
 }
 
+const SEARCH_DEBOUNCE_MS = 300
+
 /**
  * The vehicle profile's service history. Four states; the entries **stamp in once**
- * on the first load and then just render (design-system.md §Motion rule 4).
+ * on the first load and then just render (design-system.md §Motion rule 4). Search /
+ * type / date-range filters (Sprint 8) sit above the list; a filtered-empty result
+ * gets its own copy, distinct from the no-records-yet empty state.
  */
 export function Timeline({ vehicleId, onAddPress, onEntryPress }: TimelineProps) {
-  const records = useServiceRecords(vehicleId)
-  const types = useServiceTypes()
+  // `input` is what the controls show; `filter` is what the query runs (debounced q).
+  const [input, setInput] = useState<TimelineFilter>({})
+  const [filter, setFilter] = useState<TimelineFilter>({})
 
-  // Stamp-in is a one-time thing: after the list has painted once, later renders
-  // (a new optimistic entry, a refetch) don't re-animate the whole list.
+  useEffect(() => {
+    const id = setTimeout(() => {
+      setFilter(input)
+    }, SEARCH_DEBOUNCE_MS)
+    return () => {
+      clearTimeout(id)
+    }
+  }, [input])
+
+  const records = useServiceRecords(vehicleId, filter)
+  const types = useServiceTypes()
+  const filtering = hasActiveFilter(input)
+
+  // Stamp-in is a one-time thing on the very first unfiltered load.
   const hasStamped = useRef(false)
-  const animateIn = !hasStamped.current
-  if (records.data) hasStamped.current = true
+  const animateIn = !hasStamped.current && !filtering
+  if (records.data && !filtering) hasStamped.current = true
+
+  const rows = useMemo(() => records.data ?? [], [records.data])
 
   return (
     <View style={styles.wrap}>
@@ -34,10 +55,14 @@ export function Timeline({ vehicleId, onAddPress, onEntryPress }: TimelineProps)
         <AppText token="label" tone="secondary">
           Service history
         </AppText>
-        {records.data && records.data.length > 0 ? (
+        {rows.length > 0 || filtering ? (
           <Button label="Log a service" variant="text" onPress={onAddPress} />
         ) : null}
       </View>
+
+      {(hasStamped.current || filtering) && (rows.length > 0 || filtering) ? (
+        <TimelineFilters value={input} onChange={setInput} />
+      ) : null}
 
       {records.isLoading ? (
         <View style={styles.skeletons}>
@@ -47,16 +72,25 @@ export function Timeline({ vehicleId, onAddPress, onEntryPress }: TimelineProps)
         </View>
       ) : records.isError ? (
         <ErrorState message="We couldn't load this history." onRetry={() => void records.refetch()} />
-      ) : (records.data ?? []).length === 0 ? (
-        <View style={styles.empty}>
-          <AppText token="body" tone="secondary" style={styles.emptyText}>
-            No services logged yet. The first entry starts the record.
-          </AppText>
-          <Button label="Log a service" onPress={onAddPress} />
-        </View>
+      ) : rows.length === 0 ? (
+        filtering ? (
+          <View style={styles.empty}>
+            <AppText token="body" tone="secondary" style={styles.emptyText}>
+              No services match these filters.
+            </AppText>
+            <Button label="Clear filters" variant="secondary" onPress={() => { setInput({}) }} />
+          </View>
+        ) : (
+          <View style={styles.empty}>
+            <AppText token="body" tone="secondary" style={styles.emptyText}>
+              No services logged yet. The first entry starts the record.
+            </AppText>
+            <Button label="Log a service" onPress={onAddPress} />
+          </View>
+        )
       ) : (
         <View>
-          {(records.data ?? []).map((record, index) => (
+          {rows.map((record, index) => (
             <TimelineEntry
               key={record.id}
               record={record}

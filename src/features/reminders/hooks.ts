@@ -1,8 +1,8 @@
 import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
 
 import { markPending, type WithPending } from '@/data/pending'
-import { vehicleKeys } from '@/features/vehicles/hooks'
-import type { Vehicle, VehicleListItem } from '@/features/vehicles/types'
+import { readVehicleList, vehicleKeys } from '@/features/vehicles/hooks'
+import type { Vehicle } from '@/features/vehicles/types'
 
 import * as reminderApi from './api'
 import { computeReminderStatus, todayIso } from './status'
@@ -27,9 +27,7 @@ export function useReminders(vehicleId: string) {
 function currentMileageOf(qc: QueryClient, vehicleId: string): number | null {
   const detail = qc.getQueryData<Vehicle>(vehicleKeys.detail(vehicleId))
   if (detail?.currentMileage != null) return detail.currentMileage
-  const fromList = qc
-    .getQueryData<VehicleListItem[]>(vehicleKeys.list())
-    ?.find((v) => v.id === vehicleId)
+  const fromList = readVehicleList(qc)?.find((v) => v.id === vehicleId)
   return fromList?.currentMileage ?? null
 }
 

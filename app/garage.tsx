@@ -1,17 +1,26 @@
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
 import { Stack, useRouter } from 'expo-router'
 import { color, space } from '@revv/tokens'
 
 import { AppText, EmptyState, ErrorState, VehicleCardSkeleton } from '@/ui'
 import { useSignOut } from '@/features/auth/use-session'
+import { GarageSortControl } from '@/features/vehicles/GarageSortControl'
+import type { GarageSort } from '@/features/vehicles/api'
+import { loadGarageSort, saveGarageSort } from '@/features/vehicles/garage-sort'
 import { VehicleCard } from '@/features/vehicles/VehicleCard'
 import { useVehicles } from '@/features/vehicles/hooks'
 
 export default function GarageScreen() {
   const router = useRouter()
   const signOut = useSignOut()
-  const { data, isLoading, isError, refetch, isRefetching } = useVehicles()
+  const [sort, setSort] = useState<GarageSort>(() => loadGarageSort())
+  const { data, isLoading, isError, refetch, isRefetching } = useVehicles(sort)
+
+  const changeSort = useCallback((next: GarageSort) => {
+    setSort(next)
+    saveGarageSort(next)
+  }, [])
 
   const addVehicle = useCallback(() => {
     router.push('/vehicle/new')
@@ -79,6 +88,9 @@ export default function GarageScreen() {
             />
           }
         >
+          {vehicles.length >= 2 ? (
+            <GarageSortControl value={sort} onChange={changeSort} />
+          ) : null}
           {vehicles.map((vehicle) => (
             <VehicleCard
               key={vehicle.id}

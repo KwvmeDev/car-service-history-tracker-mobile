@@ -7,18 +7,36 @@ import type { CreateVehicleBody, PatchVehicleBody, Vehicle, VehicleListItem } fr
 
 export const vehicleKeys = {
   all: ['vehicles'] as const,
-  list: () => [...vehicleKeys.all, 'list'] as const,
+  /** Prefix over every sorted garage list — use for invalidation and cache fan-out. */
+  listBase: () => [...vehicleKeys.all, 'list'] as const,
+  list: (sort: vehicleApi.GarageSort = 'recent') => [...vehicleKeys.all, 'list', sort] as const,
   detail: (id: string) => [...vehicleKeys.all, 'detail', id] as const,
 }
 
 type ListItem = WithPending<VehicleListItem>
 
-/** GET /v1/vehicles — the garage. */
-export function useVehicles() {
+/** GET /v1/vehicles — the garage. `sort` is in the query key so each order caches separately. */
+export function useVehicles(sort: vehicleApi.GarageSort = 'recent') {
   return useQuery({
-    queryKey: vehicleKeys.list(),
-    queryFn: vehicleApi.listVehicles,
+    queryKey: vehicleKeys.list(sort),
+    queryFn: () => vehicleApi.listVehicles(sort),
   })
+}
+
+/** Read a garage list from whichever sort is cached (they hold the same rows). */
+export function readVehicleList(qc: QueryClient): ListItem[] | undefined {
+  for (const [, data] of qc.getQueriesData<ListItem[]>({ queryKey: vehicleKeys.listBase() })) {
+    if (data) return data
+  }
+  return undefined
+}
+
+/** Apply an updater to every cached garage list (all sorts). */
+export function eachVehicleList(
+  qc: QueryClient,
+  updater: (prev: ListItem[] | undefined) => ListItem[] | undefined,
+): void {
+  qc.setQueriesData<ListItem[]>({ queryKey: vehicleKeys.listBase() }, (prev) => updater(prev) ?? prev)
 }
 
 /** GET /v1/vehicles/{id} — seeded from the list cache so the profile paints instantly. */
@@ -28,7 +46,7 @@ export function useVehicle(id: string) {
     queryKey: vehicleKeys.detail(id),
     queryFn: () => vehicleApi.getVehicle(id),
     placeholderData: () => {
-      const fromList = qc.getQueryData<ListItem[]>(vehicleKeys.list())?.find((v) => v.id === id)
+      const fromList = readVehicleList(qc)?.find((v) => v.id === id)
       if (!fromList) return undefined
       const seed: Vehicle = { ...clearPending(fromList), vinDecode: fromList.vinDecode ?? null }
       return seed
@@ -37,18 +55,12 @@ export function useVehicle(id: string) {
 }
 
 function upsertListItem(qc: QueryClient, item: ListItem): void {
-  qc.setQueryData<ListItem[]>(vehicleKeys.list(), (prev = []) => {
-    const without = prev.filter((v) => v.id !== item.id)
-    return [item, ...without]
-  })
+  eachVehicleList(qc, (prev = []) => [item, ...prev.filter((v) => v.id !== item.id)])
 }
 
 function removeListItem(qc: QueryClient, id: string): ListItem[] {
-  const prev = qc.getQueryData<ListItem[]>(vehicleKeys.list()) ?? []
-  qc.setQueryData<ListItem[]>(
-    vehicleKeys.list(),
-    prev.filter((v) => v.id !== id),
-  )
+  const prev = readVehicleList(qc) ?? []
+  eachVehicleList(qc, (list = []) => list.filter((v) => v.id !== id))
   return prev
 }
 
@@ -80,18 +92,18 @@ export function useCreateVehicle() {
         createdAt: now,
         updatedAt: now,
       })
-      const prev = qc.getQueryData<ListItem[]>(vehicleKeys.list())
+      const prev = readVehicleList(qc)
       upsertListItem(qc, optimistic)
       return { prev }
     },
     onError: (_err, _body, ctx) => {
-      if (ctx?.prev) qc.setQueryData(vehicleKeys.list(), ctx.prev)
+      if (ctx?.prev) eachVehicleList(qc, () => ctx.prev)
     },
     onSuccess: (vehicle) => {
       upsertListItem(qc, vehicle)
       qc.setQueryData(vehicleKeys.detail(vehicle.id), vehicle)
     },
-    onSettled: () => qc.invalidateQueries({ queryKey: vehicleKeys.list() }),
+    onSettled: () => qc.invalidateQueries({ queryKey: vehicleKeys.listBase() }),
   })
 }
 
@@ -101,18 +113,18 @@ export function useUpdateVehicle(id: string) {
   return useMutation({
     mutationFn: (body: PatchVehicleBody) => vehicleApi.patchVehicle(id, body),
     onMutate: (body) => {
-      const prevList = qc.getQueryData<ListItem[]>(vehicleKeys.list())
+      const prevList = readVehicleList(qc)
       const prevDetail = qc.getQueryData<Vehicle>(vehicleKeys.detail(id))
       if (prevDetail) {
         qc.setQueryData<WithPending<Vehicle>>(vehicleKeys.detail(id), markPending({ ...prevDetail, ...body }))
       }
-      qc.setQueryData<ListItem[]>(vehicleKeys.list(), (prev = []) =>
+      eachVehicleList(qc, (prev = []) =>
         prev.map((v) => (v.id === id ? markPending({ ...v, ...body }) : v)),
       )
       return { prevList, prevDetail }
     },
     onError: (_err, _body, ctx) => {
-      if (ctx?.prevList) qc.setQueryData(vehicleKeys.list(), ctx.prevList)
+      if (ctx?.prevList) eachVehicleList(qc, () => ctx.prevList)
       if (ctx?.prevDetail) qc.setQueryData(vehicleKeys.detail(id), ctx.prevDetail)
     },
     onSuccess: (vehicle) => {
@@ -121,7 +133,7 @@ export function useUpdateVehicle(id: string) {
     },
     onSettled: () => {
       void qc.invalidateQueries({ queryKey: vehicleKeys.detail(id) })
-      void qc.invalidateQueries({ queryKey: vehicleKeys.list() })
+      void qc.invalidateQueries({ queryKey: vehicleKeys.listBase() })
     },
   })
 }
@@ -133,9 +145,9 @@ export function useDeleteVehicle() {
     mutationFn: (id: string) => vehicleApi.deleteVehicle(id),
     onMutate: (id) => ({ prev: removeListItem(qc, id) }),
     onError: (_err, _id, ctx) => {
-      if (ctx?.prev) qc.setQueryData(vehicleKeys.list(), ctx.prev)
+      if (ctx?.prev) eachVehicleList(qc, () => ctx.prev)
     },
-    onSettled: () => qc.invalidateQueries({ queryKey: vehicleKeys.list() }),
+    onSettled: () => qc.invalidateQueries({ queryKey: vehicleKeys.listBase() }),
   })
 }
 

@@ -1,6 +1,8 @@
 import { useMemo } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 
+import { unregisterFromPush } from '@/features/notifications/push-registration'
+
 import { authClient, signOut as signOutCore } from './auth-client'
 
 export type SessionStatus = 'loading' | 'authenticated' | 'unauthenticated'
@@ -68,6 +70,9 @@ export function useSession(): SessionState {
 export function useSignOut(): () => Promise<void> {
   const queryClient = useQueryClient()
   return async () => {
+    // Deregister this device's push token first — the DELETE needs the session,
+    // which signOutCore is about to clear. `unregisterFromPush` never throws.
+    await unregisterFromPush()
     await signOutCore()
     queryClient.clear()
   }

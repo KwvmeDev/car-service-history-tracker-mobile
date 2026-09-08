@@ -16,3 +16,21 @@ export type PatchServiceRecordBody = NonNullable<
 
 export type ServiceType =
   paths['/v1/service-types']['get']['responses']['200']['content']['application/json']['data'][number]
+
+/** Timeline search / filter (Sprint 8). Every field optional; empty = no filter. */
+export interface TimelineFilter {
+  q?: string
+  serviceTypeKey?: string
+  from?: string
+  to?: string
+}
+
+/** True when at least one filter is active. */
+export function hasActiveFilter(f: TimelineFilter): boolean {
+  return (
+    (f.q?.trim().length ?? 0) > 0 ||
+    f.serviceTypeKey != null ||
+    f.from != null ||
+    f.to != null
+  )
+}
