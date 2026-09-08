@@ -17,6 +17,8 @@ import { Reminders } from '@/features/reminders/Reminders'
 import { ReminderSheet } from '@/features/reminders/ReminderSheet'
 import { useReminders, worstStatus } from '@/features/reminders/hooks'
 import { useReminderNotifications } from '@/features/reminders/use-reminder-notifications'
+import { GenerateReportFlow } from '@/features/reports/GenerateReportFlow'
+import { ReportsSheet } from '@/features/reports/ReportsSheet'
 
 export default function VehicleProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -32,6 +34,9 @@ export default function VehicleProfileScreen() {
   const [editingRecordId, setEditingRecordId] = useState<string | null>(null)
   const [addingReminder, setAddingReminder] = useState(false)
   const [editingReminderId, setEditingReminderId] = useState<string | null>(null)
+  const [reportsOpen, setReportsOpen] = useState(false)
+  const [generating, setGenerating] = useState(false)
+  const [regenerateId, setRegenerateId] = useState<string | null>(null)
 
   const editingRecord = useMemo(
     () => records.data?.find((r) => r.id === editingRecordId),
@@ -184,6 +189,19 @@ export default function VehicleProfileScreen() {
         onEditPress={setEditingReminderId}
       />
 
+      <View style={styles.reportCta}>
+        <Button
+          label="Resale report"
+          block
+          onPress={() => {
+            setReportsOpen(true)
+          }}
+        />
+        <AppText token="caption" tone="secondary" style={styles.reportHint}>
+          Turn this history into a document a buyer can open in any browser.
+        </AppText>
+      </View>
+
       <EditVehicleSheet
         vehicle={vehicle}
         visible={editingVehicle}
@@ -223,6 +241,34 @@ export default function VehicleProfileScreen() {
           setEditingReminderId(null)
         }}
       />
+
+      <ReportsSheet
+        vehicleId={id}
+        visible={reportsOpen}
+        onDismiss={() => {
+          setReportsOpen(false)
+        }}
+        onGenerate={() => {
+          setReportsOpen(false)
+          setRegenerateId(null)
+          setGenerating(true)
+        }}
+        onRegenerate={(reportId) => {
+          setReportsOpen(false)
+          setRegenerateId(reportId)
+          setGenerating(true)
+        }}
+      />
+      <GenerateReportFlow
+        vehicleId={id}
+        vehicleTitle={title}
+        visible={generating}
+        regenerateId={regenerateId ?? undefined}
+        onDismiss={() => {
+          setGenerating(false)
+          setRegenerateId(null)
+        }}
+      />
     </ScrollView>
   )
 }
@@ -247,4 +293,6 @@ const styles = StyleSheet.create({
   stat: { flex: 1, gap: space.xxs },
   rule: { width: StyleSheet.hairlineWidth, alignSelf: 'stretch', backgroundColor: color.hairline },
   actions: { flexDirection: 'row', gap: space.sm, alignItems: 'center' },
+  reportCta: { gap: space.xs, marginTop: space.sm },
+  reportHint: { textAlign: 'center' },
 })
