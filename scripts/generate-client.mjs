@@ -42,7 +42,10 @@ import createClient from 'openapi-fetch'
 import { apiBaseUrl } from '../base-url'
 import type { paths } from './schema'
 
-export const api = createClient<paths>({ baseUrl: apiBaseUrl })
+// \`credentials: 'include'\` sends the Better Auth session cookie: it is the auth path
+// on web (expo-secure-store has no bearer token there). On native there is no cookie,
+// so the auth middleware's bearer header still does the work.
+export const api = createClient<paths>({ baseUrl: apiBaseUrl, credentials: 'include' })
 export type { paths }
 `
 await writeFile(join(outDir, 'client.ts'), client, 'utf8')

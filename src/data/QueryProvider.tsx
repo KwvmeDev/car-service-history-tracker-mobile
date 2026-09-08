@@ -1,4 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react'
+import { Platform } from 'react-native'
 import Constants from 'expo-constants'
 import * as Network from 'expo-network'
 import { onlineManager, type QueryClient } from '@tanstack/react-query'
@@ -16,14 +17,37 @@ const QUERY_CACHE_SCHEMA = '1'
 const APP_VERSION = Constants.expoConfig?.version ?? '0'
 const CACHE_BUSTER = `${APP_VERSION}:${QUERY_CACHE_SCHEMA}`
 
-const isOnline = (state: Network.NetworkState): boolean =>
-  Boolean(state.isConnected) && state.isInternetReachable !== false
+// Optimistic (ADR 0004): treat "unknown" as online. On web expo-network reports
+// `isConnected: undefined`; assuming offline there would pause every query forever.
+const isOnline = (state: Network.NetworkState): boolean => {
+  if (Platform.OS === 'web') return typeof navigator === 'undefined' ? true : navigator.onLine
+  if (state.isConnected == null) return true
+  return state.isConnected && state.isInternetReachable !== false
+}
 
 // onlineManager decides whether mutations run or pause and resume on reconnect
-// (ADR 0004). expo-network is the connectivity source of truth. Registered once at
-// module load; the listener only fires on change, so QueryProvider seeds the initial
-// value on mount.
+// (ADR 0004). On native, expo-network is the source of truth; on web (a preview
+// target) the browser's online/offline events are, and expo-network's listener can
+// fire spuriously. Registered once at module load.
 onlineManager.setEventListener((setOnline) => {
+  if (Platform.OS === 'web') {
+    const onOnline = (): void => {
+      setOnline(true)
+    }
+    const onOffline = (): void => {
+      setOnline(false)
+    }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('online', onOnline)
+      window.addEventListener('offline', onOffline)
+    }
+    return () => {
+      if (typeof window !== 'undefined') {
+        window.removeEventListener('online', onOnline)
+        window.removeEventListener('offline', onOffline)
+      }
+    }
+  }
   const subscription = Network.addNetworkStateListener((state) => {
     setOnline(isOnline(state))
   })
@@ -39,6 +63,10 @@ export function QueryProvider({ children }: { children: ReactNode }) {
   const persisterRef = useRef(createMmkvPersister())
 
   useEffect(() => {
+    if (Platform.OS === 'web') {
+      onlineManager.setOnline(typeof navigator === 'undefined' ? true : navigator.onLine)
+      return
+    }
     void Network.getNetworkStateAsync().then((state) => {
       onlineManager.setOnline(isOnline(state))
     })

@@ -1,3 +1,4 @@
+import { Platform } from 'react-native'
 import * as SecureStore from 'expo-secure-store'
 
 /**
@@ -10,7 +11,14 @@ import * as SecureStore from 'expo-secure-store'
  *
  * WHEN_UNLOCKED_THIS_DEVICE_ONLY: the entry is not copied to a new device on restore
  * and is unreadable while the device is locked.
+ *
+ * On **web** (a preview target only — the real app is native) expo-secure-store is
+ * unavailable and every call throws. Web falls back to nothing: the session rides on
+ * the Better Auth cookie (`credentials: 'include'` in the generated api client), so
+ * these functions swallow the web error and return empty rather than crashing a query.
  */
+
+const IS_WEB = Platform.OS === 'web'
 
 export const AUTH_STORAGE_PREFIX = 'revv'
 export const AUTH_SCHEME = 'revv'
@@ -31,14 +39,22 @@ const STORE_OPTIONS: SecureStore.SecureStoreOptions = {
 
 /** Storage object handed to @better-auth/expo's expoClient — SecureStore, scoped. */
 export const secureAuthStorage = {
-  getItem: (key: string): string | null => SecureStore.getItem(key, STORE_OPTIONS),
+  getItem: (key: string): string | null => {
+    if (IS_WEB) return null
+    return SecureStore.getItem(key, STORE_OPTIONS)
+  },
   setItem: (key: string, value: string): void => {
+    if (IS_WEB) return
     SecureStore.setItem(key, value, STORE_OPTIONS)
   },
-  getItemAsync: (key: string): Promise<string | null> =>
-    SecureStore.getItemAsync(key, STORE_OPTIONS),
-  setItemAsync: (key: string, value: string): Promise<void> =>
-    SecureStore.setItemAsync(key, value, STORE_OPTIONS),
+  getItemAsync: (key: string): Promise<string | null> => {
+    if (IS_WEB) return Promise.resolve(null)
+    return SecureStore.getItemAsync(key, STORE_OPTIONS)
+  },
+  setItemAsync: (key: string, value: string): Promise<void> => {
+    if (IS_WEB) return Promise.resolve()
+    return SecureStore.setItemAsync(key, value, STORE_OPTIONS)
+  },
 }
 
 interface StoredCookie {
@@ -75,14 +91,16 @@ export function extractSessionToken(rawCookieMap: string | null): string | null 
   return null
 }
 
-/** The current session token, or null. Reads SecureStore and nothing else. */
+/** The current session token, or null. Reads SecureStore and nothing else (web: null). */
 export async function getSessionToken(): Promise<string | null> {
+  if (IS_WEB) return null
   const raw = await SecureStore.getItemAsync(COOKIE_STORE_KEY, STORE_OPTIONS)
   return extractSessionToken(raw)
 }
 
 /** Remove every SecureStore entry the auth client owns (sign-out). */
 export async function clearStoredSession(): Promise<void> {
+  if (IS_WEB) return
   await Promise.all([
     SecureStore.deleteItemAsync(COOKIE_STORE_KEY, STORE_OPTIONS),
     SecureStore.deleteItemAsync(SESSION_DATA_KEY, STORE_OPTIONS),
