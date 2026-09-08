@@ -1,5 +1,11 @@
-import { addMonths, computeReminderStatus, DUE_SOON_DAYS, DUE_SOON_MILES } from './status'
-import { REMINDER_STATUS_CASES } from './status.fixtures'
+import {
+  addMonths,
+  computeReminderStatus,
+  DUE_SOON_DAYS,
+  DUE_SOON_MILES,
+  pushDueKind,
+} from './status'
+import { PUSH_DUE_KIND_CASES, REMINDER_STATUS_CASES } from './status.fixtures'
 
 describe('computeReminderStatus — the shared parity table (matches revv-api)', () => {
   for (const { name, input, expected } of REMINDER_STATUS_CASES) {
@@ -46,6 +52,14 @@ describe('computeReminderStatus — thresholds', () => {
     expect(r.daysRemaining).toBe(DUE_SOON_DAYS)
     expect(r.status).toBe('due')
   })
+})
+
+describe('pushDueKind — the shared parity table (matches revv-api)', () => {
+  for (const { name, input, expected } of PUSH_DUE_KIND_CASES) {
+    it(name, () => {
+      expect(pushDueKind(input)).toBe(expected)
+    })
+  }
 })
 
 describe('addMonths', () => {

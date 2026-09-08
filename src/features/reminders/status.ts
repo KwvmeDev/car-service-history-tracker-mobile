@@ -111,6 +111,47 @@ export function computeReminderStatus(input: ReminderStatusInput): ReminderStatu
   }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// Push-worthiness (Sprint 8). The server's daily scan pushes a reminder before
+// it is actually due; `pushDueKind` is that classification. Same inputs and the
+// same 500 mi / 14 day "due" thresholds as `computeReminderStatus`, plus a wider
+// `upcoming` pre-window so a heads-up can go out weeks ahead. Mirrored
+// byte-for-byte in revv-mobile/src/features/reminders/status.ts.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** Beyond "due" but within this many miles of due → push-worthy as `upcoming`. */
+export const UPCOMING_MILES = 1_000
+/** Beyond "due" but within this many days of due → push-worthy as `upcoming`. */
+export const UPCOMING_DAYS = 30
+
+export type PushDueKind = 'upcoming' | 'due' | 'overdue'
+
+type PushSeverity = 0 | 1 | 2 | 3 // none | upcoming | due | overdue
+
+function pushSeverity(remaining: number, dueThreshold: number, upcomingThreshold: number): PushSeverity {
+  if (remaining < 0) return 3
+  if (remaining <= dueThreshold) return 2
+  if (remaining <= upcomingThreshold) return 1
+  return 0
+}
+
+const PUSH_KIND_BY_SEVERITY: Record<1 | 2 | 3, PushDueKind> = { 1: 'upcoming', 2: 'due', 3: 'overdue' }
+
+/**
+ * How push-worthy a reminder is right now, or `null` when it is not worth a push
+ * yet (or has no interval at all). The nearer of the two tracks wins.
+ */
+export function pushDueKind(input: ReminderStatusInput): PushDueKind | null {
+  const { milesRemaining, daysRemaining } = computeReminderStatus(input)
+
+  const severities: PushSeverity[] = []
+  if (milesRemaining != null) severities.push(pushSeverity(milesRemaining, DUE_SOON_MILES, UPCOMING_MILES))
+  if (daysRemaining != null) severities.push(pushSeverity(daysRemaining, DUE_SOON_DAYS, UPCOMING_DAYS))
+
+  const worst = severities.reduce<PushSeverity>((max, s) => (s > max ? s : max), 0)
+  return worst === 0 ? null : PUSH_KIND_BY_SEVERITY[worst]
+}
+
 /** `YYYY-MM-DD` for the local "today". */
 export function todayIso(now: Date = new Date()): string {
   const y = String(now.getFullYear()).padStart(4, '0')

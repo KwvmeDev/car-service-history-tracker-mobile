@@ -7,12 +7,18 @@
  * other — `computeReminderStatus` here and its mirror there must agree on every row.
  */
 
-import type { ReminderStatusInput, ReminderStatusResult } from './status'
+import type { PushDueKind, ReminderStatusInput, ReminderStatusResult } from './status'
 
 export interface ReminderStatusCase {
   readonly name: string
   readonly input: ReminderStatusInput
   readonly expected: ReminderStatusResult
+}
+
+export interface PushDueKindCase {
+  readonly name: string
+  readonly input: ReminderStatusInput
+  readonly expected: PushDueKind | null
 }
 
 export const REMINDER_STATUS_CASES: readonly ReminderStatusCase[] = [
@@ -196,5 +202,134 @@ export const REMINDER_STATUS_CASES: readonly ReminderStatusCase[] = [
       dueMileage: 51_300,
       dueDate: null,
     },
+  },
+]
+
+/**
+ * `pushDueKind` parity table (Sprint 8). Also duplicated byte-for-byte in
+ * `revv-mobile/src/features/reminders/status.fixtures.ts`. Exercises the
+ * `upcoming` boundary (1,000 mi / 30 days) that `computeReminderStatus` does not
+ * model.
+ */
+export const PUSH_DUE_KIND_CASES: readonly PushDueKindCase[] = [
+  {
+    name: 'mile track, exactly 1,000 mi out → upcoming',
+    input: {
+      intervalMiles: 5_000,
+      intervalMonths: null,
+      lastCompletedOn: null,
+      lastCompletedMileage: 40_000,
+      currentMileage: 44_000,
+      today: '2026-09-08',
+    },
+    expected: 'upcoming',
+  },
+  {
+    name: 'mile track, 1,001 mi out → not yet push-worthy',
+    input: {
+      intervalMiles: 5_000,
+      intervalMonths: null,
+      lastCompletedOn: null,
+      lastCompletedMileage: 40_000,
+      currentMileage: 43_999,
+      today: '2026-09-08',
+    },
+    expected: null,
+  },
+  {
+    name: 'mile track, within 500 mi → due (not upcoming)',
+    input: {
+      intervalMiles: 5_000,
+      intervalMonths: null,
+      lastCompletedOn: null,
+      lastCompletedMileage: 40_000,
+      currentMileage: 44_500,
+      today: '2026-09-08',
+    },
+    expected: 'due',
+  },
+  {
+    name: 'mile track, past due → overdue',
+    input: {
+      intervalMiles: 5_000,
+      intervalMonths: null,
+      lastCompletedOn: null,
+      lastCompletedMileage: 40_000,
+      currentMileage: 45_001,
+      today: '2026-09-08',
+    },
+    expected: 'overdue',
+  },
+  {
+    name: 'month track, exactly 30 days out → upcoming',
+    input: {
+      intervalMiles: null,
+      intervalMonths: 6,
+      lastCompletedOn: '2026-06-01',
+      lastCompletedMileage: null,
+      currentMileage: null,
+      today: '2026-11-01',
+    },
+    expected: 'upcoming',
+  },
+  {
+    name: 'month track, 31 days out → not yet push-worthy',
+    input: {
+      intervalMiles: null,
+      intervalMonths: 6,
+      lastCompletedOn: '2026-06-01',
+      lastCompletedMileage: null,
+      currentMileage: null,
+      today: '2026-10-31',
+    },
+    expected: null,
+  },
+  {
+    name: 'month track, 14 days out → due',
+    input: {
+      intervalMiles: null,
+      intervalMonths: 6,
+      lastCompletedOn: '2026-06-01',
+      lastCompletedMileage: null,
+      currentMileage: null,
+      today: '2026-11-17',
+    },
+    expected: 'due',
+  },
+  {
+    name: 'both tracks — miles upcoming, time overdue → overdue (nearer wins)',
+    input: {
+      intervalMiles: 5_000,
+      intervalMonths: 3,
+      lastCompletedOn: '2026-01-31',
+      lastCompletedMileage: 40_000,
+      currentMileage: 44_100,
+      today: '2026-09-08',
+    },
+    expected: 'overdue',
+  },
+  {
+    name: 'comfortably ahead on both → null',
+    input: {
+      intervalMiles: 5_000,
+      intervalMonths: 12,
+      lastCompletedOn: '2026-06-01',
+      lastCompletedMileage: 40_000,
+      currentMileage: 42_000,
+      today: '2026-09-08',
+    },
+    expected: null,
+  },
+  {
+    name: 'no interval at all → null',
+    input: {
+      intervalMiles: null,
+      intervalMonths: null,
+      lastCompletedOn: null,
+      lastCompletedMileage: null,
+      currentMileage: 50_000,
+      today: '2026-09-08',
+    },
+    expected: null,
   },
 ]
