@@ -113,12 +113,16 @@ export function revvBase(options = {}) {
         'no-console': 'off',
         'no-restricted-imports': 'off',
         '@typescript-eslint/no-explicit-any': 'off',
-        // Test doubles and HTTP-inject payloads are legitimately untyped.
+        // Test doubles and HTTP-inject payloads are legitimately untyped: an
+        // app.inject() response `.json()` is `any`, so casting it to a small
+        // expected shape (and interpolating an id into a URL) is normal here.
         '@typescript-eslint/no-unsafe-assignment': 'off',
         '@typescript-eslint/no-unsafe-member-access': 'off',
         '@typescript-eslint/no-unsafe-call': 'off',
         '@typescript-eslint/no-unsafe-argument': 'off',
         '@typescript-eslint/no-unsafe-return': 'off',
+        '@typescript-eslint/no-unnecessary-type-assertion': 'off',
+        '@typescript-eslint/restrict-template-expressions': ['error', { allowAny: true }],
       },
     },
     prettier,

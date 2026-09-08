@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react'
-import { Animated, Pressable, ScrollView, StyleSheet, View } from 'react-native'
+import { useMemo, useRef, useState } from 'react'
+import { Animated, ScrollView, StyleSheet, View } from 'react-native'
 import { Stack, useLocalSearchParams } from 'expo-router'
 import { color, radius, space } from '@revv/tokens'
 
@@ -9,15 +9,27 @@ import { isPending } from '@/data/pending'
 import { EditVehicleSheet } from '@/features/vehicles/EditVehicleSheet'
 import { useDecodeVin, useVehicle } from '@/features/vehicles/hooks'
 import { vehicleTitle } from '@/features/vehicles/types'
+import { Timeline } from '@/features/service-records/Timeline'
+import { LogServiceSheet } from '@/features/service-records/LogServiceSheet'
+import { useServiceRecords } from '@/features/service-records/hooks'
+import { useAttachmentUploadQueue } from '@/features/attachments/hooks'
 
 export default function VehicleProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const { data: vehicle, isLoading, isError, refetch, isPlaceholderData } = useVehicle(id)
   const decode = useDecodeVin(id)
-  const [editing, setEditing] = useState(false)
+  const records = useServiceRecords(id)
+  useAttachmentUploadQueue()
 
-  // The header "prints in" once — the card→profile crossfade fallback (ADR-noted:
-  // full shared-element morph deferred; this is the tween fallback).
+  const [editingVehicle, setEditingVehicle] = useState(false)
+  const [logging, setLogging] = useState(false)
+  const [editingRecordId, setEditingRecordId] = useState<string | null>(null)
+
+  const editingRecord = useMemo(
+    () => records.data?.find((r) => r.id === editingRecordId),
+    [records.data, editingRecordId],
+  )
+
   const printIn = useRef(new Animated.Value(0)).current
   const started = useRef(false)
   if (vehicle && !started.current) {
@@ -48,6 +60,7 @@ export default function VehicleProfileScreen() {
 
   const title = vehicleTitle(vehicle)
   const pending = isPending(vehicle) || isPlaceholderData
+  const recordCount = records.data?.length ?? 0
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
@@ -96,7 +109,10 @@ export default function VehicleProfileScreen() {
           </View>
           <View style={styles.rule} />
           <View style={styles.stat}>
-            <StatRow stats={[{ label: 'Records', value: '0' }]} />
+            <CountUp value={recordCount} tone="onNavy" />
+            <AppText token="caption" tone="onNavySubtle">
+              Records
+            </AppText>
           </View>
           <View style={styles.rule} />
           <View style={styles.stat}>
@@ -117,7 +133,7 @@ export default function VehicleProfileScreen() {
           label="Edit vehicle"
           variant="secondary"
           onPress={() => {
-            setEditing(true)
+            setEditingVehicle(true)
           }}
         />
         {vehicle.vin != null ? (
@@ -132,22 +148,35 @@ export default function VehicleProfileScreen() {
         ) : null}
       </View>
 
-      <View style={styles.timeline}>
-        <AppText token="label" tone="secondary">
-          Service history
-        </AppText>
-        <Pressable style={styles.timelineEmpty}>
-          <AppText token="body" tone="secondary" style={styles.timelineText}>
-            No services logged yet. The first entry starts the record.
-          </AppText>
-        </Pressable>
-      </View>
+      <Timeline
+        vehicleId={id}
+        onAddPress={() => {
+          setLogging(true)
+        }}
+        onEntryPress={setEditingRecordId}
+      />
 
       <EditVehicleSheet
         vehicle={vehicle}
-        visible={editing}
+        visible={editingVehicle}
         onDismiss={() => {
-          setEditing(false)
+          setEditingVehicle(false)
+        }}
+      />
+      <LogServiceSheet
+        key={logging ? 'log-open' : 'log-closed'}
+        vehicleId={id}
+        visible={logging}
+        onDismiss={() => {
+          setLogging(false)
+        }}
+      />
+      <LogServiceSheet
+        vehicleId={id}
+        visible={editingRecord != null}
+        record={editingRecord}
+        onDismiss={() => {
+          setEditingRecordId(null)
         }}
       />
     </ScrollView>
@@ -174,13 +203,4 @@ const styles = StyleSheet.create({
   stat: { flex: 1, gap: space.xxs },
   rule: { width: StyleSheet.hairlineWidth, alignSelf: 'stretch', backgroundColor: color.hairline },
   actions: { flexDirection: 'row', gap: space.sm, alignItems: 'center' },
-  timeline: { gap: space.sm },
-  timelineEmpty: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: color.hairline,
-    borderRadius: radius.sm,
-    borderStyle: 'dashed',
-    padding: space.xl,
-  },
-  timelineText: { textAlign: 'center' },
 })

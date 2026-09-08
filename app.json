@@ -21,7 +21,14 @@
       "expo-secure-store",
       "expo-apple-authentication",
       "expo-font",
-      "@react-native-google-signin/google-signin"
+      "@react-native-google-signin/google-signin",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Revv needs photo access to attach receipts and photos to a service record.",
+          "cameraPermission": "Revv needs the camera to photograph a receipt for a service record."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true
