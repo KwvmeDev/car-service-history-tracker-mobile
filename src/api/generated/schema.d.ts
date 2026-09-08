@@ -154,6 +154,365 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/reminders/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get one reminder */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: date-time */
+                            createdAt: string;
+                            daysRemaining: number | null;
+                            dueDate: string | null;
+                            dueMileage: number | null;
+                            id: string;
+                            intervalMiles: number | null;
+                            intervalMonths: number | null;
+                            lastCompletedMileage: number | null;
+                            lastCompletedOn: string | null;
+                            milesRemaining: number | null;
+                            serviceTypeKey: string | null;
+                            /** @enum {string} */
+                            status: "ok" | "due" | "overdue";
+                            title: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            vehicleId: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /** Soft-delete a reminder */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /** Edit a reminder, or mark it completed (markCompleted: true) */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        intervalMiles?: number | null;
+                        intervalMonths?: number | null;
+                        lastCompletedMileage?: number | null;
+                        lastCompletedOn?: string | null;
+                        /** @enum {boolean} */
+                        markCompleted?: true;
+                        serviceTypeKey?: string | null;
+                        title?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: date-time */
+                            createdAt: string;
+                            daysRemaining: number | null;
+                            dueDate: string | null;
+                            dueMileage: number | null;
+                            id: string;
+                            intervalMiles: number | null;
+                            intervalMonths: number | null;
+                            lastCompletedMileage: number | null;
+                            lastCompletedOn: string | null;
+                            milesRemaining: number | null;
+                            serviceTypeKey: string | null;
+                            /** @enum {string} */
+                            status: "ok" | "due" | "overdue";
+                            title: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            vehicleId: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/v1/service-records/{id}": {
         parameters: {
             query?: never;
@@ -1514,6 +1873,321 @@ export interface paths {
                 };
                 /** @description Default Response */
                 401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/vehicles/{vehicleId}/reminders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A vehicle's reminders, with computed status */
+        get: {
+            parameters: {
+                query?: {
+                    cursor?: string;
+                    limit?: number;
+                };
+                header?: never;
+                path: {
+                    vehicleId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                /** Format: date-time */
+                                createdAt: string;
+                                daysRemaining: number | null;
+                                dueDate: string | null;
+                                dueMileage: number | null;
+                                id: string;
+                                intervalMiles: number | null;
+                                intervalMonths: number | null;
+                                lastCompletedMileage: number | null;
+                                lastCompletedOn: string | null;
+                                milesRemaining: number | null;
+                                serviceTypeKey: string | null;
+                                /** @enum {string} */
+                                status: "ok" | "due" | "overdue";
+                                title: string;
+                                /** Format: date-time */
+                                updatedAt: string;
+                                vehicleId: string;
+                            }[];
+                            nextCursor: string | null;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Create a reminder (client supplies the id; a re-POST of an existing id returns it) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    vehicleId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        id: string;
+                        intervalMiles?: number | null;
+                        intervalMonths?: number | null;
+                        lastCompletedMileage?: number | null;
+                        lastCompletedOn?: string | null;
+                        serviceTypeKey?: string | null;
+                        title: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: date-time */
+                            createdAt: string;
+                            daysRemaining: number | null;
+                            dueDate: string | null;
+                            dueMileage: number | null;
+                            id: string;
+                            intervalMiles: number | null;
+                            intervalMonths: number | null;
+                            lastCompletedMileage: number | null;
+                            lastCompletedOn: string | null;
+                            milesRemaining: number | null;
+                            serviceTypeKey: string | null;
+                            /** @enum {string} */
+                            status: "ok" | "due" | "overdue";
+                            title: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            vehicleId: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: date-time */
+                            createdAt: string;
+                            daysRemaining: number | null;
+                            dueDate: string | null;
+                            dueMileage: number | null;
+                            id: string;
+                            intervalMiles: number | null;
+                            intervalMonths: number | null;
+                            lastCompletedMileage: number | null;
+                            lastCompletedOn: string | null;
+                            milesRemaining: number | null;
+                            serviceTypeKey: string | null;
+                            /** @enum {string} */
+                            status: "ok" | "due" | "overdue";
+                            title: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                            vehicleId: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
                     headers: {
                         [name: string]: unknown;
                     };

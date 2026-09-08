@@ -28,6 +28,12 @@
           "photosPermission": "Revv needs photo access to attach receipts and photos to a service record.",
           "cameraPermission": "Revv needs the camera to photograph a receipt for a service record."
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          "color": "#0B1D33"
+        }
       ]
     ],
     "experiments": {

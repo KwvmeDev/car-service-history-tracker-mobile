@@ -15,7 +15,10 @@ import { color, text } from '@revv/tokens'
 
 import { QueryProvider } from '@/data/QueryProvider'
 import { useSession } from '@/features/auth/use-session'
+import { configureReminderNotifications } from '@/features/reminders/notifications'
 import { resolveFontFamily } from '@/ui/typography'
+
+configureReminderNotifications()
 
 // Root layout. Screen chrome pulls colour and type from @revv/tokens — no raw literals.
 // The splash is held until Albert Sans (400/500/600/700) and JetBrains Mono (400) are

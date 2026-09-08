@@ -3,6 +3,7 @@ import { color, space } from '@revv/tokens'
 
 import { AppText, Badge, Card, StatRow } from '@/ui'
 import { isPending, type WithPending } from '@/data/pending'
+import { useReminders, worstStatus } from '@/features/reminders/hooks'
 
 import { vehicleTitle } from './types'
 import type { VehicleListItem } from './types'
@@ -21,6 +22,8 @@ export function VehicleCard({
 }) {
   const pending = isPending(vehicle)
   const title = vehicleTitle(vehicle)
+  const { data: reminders } = useReminders(vehicle.id)
+  const attention = worstStatus(reminders)
 
   return (
     <Card
@@ -44,7 +47,14 @@ export function VehicleCard({
             </AppText>
           )}
         </View>
-        {pending ? <Badge label="Not synced" status="due" /> : null}
+        {pending ? (
+          <Badge label="Not synced" status="due" />
+        ) : attention !== 'ok' ? (
+          <Badge
+            label={attention === 'overdue' ? 'Service overdue' : 'Service due'}
+            status={attention === 'overdue' ? 'overdue' : 'due'}
+          />
+        ) : null}
       </View>
 
       <View style={styles.divider} />

@@ -13,22 +13,35 @@ import { Timeline } from '@/features/service-records/Timeline'
 import { LogServiceSheet } from '@/features/service-records/LogServiceSheet'
 import { useServiceRecords } from '@/features/service-records/hooks'
 import { useAttachmentUploadQueue } from '@/features/attachments/hooks'
+import { Reminders } from '@/features/reminders/Reminders'
+import { ReminderSheet } from '@/features/reminders/ReminderSheet'
+import { useReminders, worstStatus } from '@/features/reminders/hooks'
+import { useReminderNotifications } from '@/features/reminders/use-reminder-notifications'
 
 export default function VehicleProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
   const { data: vehicle, isLoading, isError, refetch, isPlaceholderData } = useVehicle(id)
   const decode = useDecodeVin(id)
   const records = useServiceRecords(id)
+  const reminders = useReminders(id)
   useAttachmentUploadQueue()
+  useReminderNotifications(id, vehicle ? vehicleTitle(vehicle) : '')
 
   const [editingVehicle, setEditingVehicle] = useState(false)
   const [logging, setLogging] = useState(false)
   const [editingRecordId, setEditingRecordId] = useState<string | null>(null)
+  const [addingReminder, setAddingReminder] = useState(false)
+  const [editingReminderId, setEditingReminderId] = useState<string | null>(null)
 
   const editingRecord = useMemo(
     () => records.data?.find((r) => r.id === editingRecordId),
     [records.data, editingRecordId],
   )
+  const editingReminder = useMemo(
+    () => reminders.data?.find((r) => r.id === editingReminderId),
+    [reminders.data, editingReminderId],
+  )
+  const reminderAttention = worstStatus(reminders.data)
 
   const printIn = useRef(new Animated.Value(0)).current
   const started = useRef(false)
@@ -89,7 +102,14 @@ export default function VehicleProfileScreen() {
               </AppText>
             ) : null}
           </View>
-          {pending ? <Badge label="Not synced" status="due" /> : null}
+          {pending ? (
+            <Badge label="Not synced" status="due" />
+          ) : reminderAttention !== 'ok' ? (
+            <Badge
+              label={reminderAttention === 'overdue' ? 'Service overdue' : 'Service due'}
+              status={reminderAttention === 'overdue' ? 'overdue' : 'due'}
+            />
+          ) : null}
         </View>
 
         {vehicle.year != null || vehicle.make != null ? (
@@ -156,6 +176,14 @@ export default function VehicleProfileScreen() {
         onEntryPress={setEditingRecordId}
       />
 
+      <Reminders
+        vehicleId={id}
+        onAddPress={() => {
+          setAddingReminder(true)
+        }}
+        onEditPress={setEditingReminderId}
+      />
+
       <EditVehicleSheet
         vehicle={vehicle}
         visible={editingVehicle}
@@ -177,6 +205,22 @@ export default function VehicleProfileScreen() {
         record={editingRecord}
         onDismiss={() => {
           setEditingRecordId(null)
+        }}
+      />
+      <ReminderSheet
+        key={addingReminder ? 'reminder-open' : 'reminder-closed'}
+        vehicleId={id}
+        visible={addingReminder}
+        onDismiss={() => {
+          setAddingReminder(false)
+        }}
+      />
+      <ReminderSheet
+        vehicleId={id}
+        visible={editingReminder != null}
+        reminder={editingReminder}
+        onDismiss={() => {
+          setEditingReminderId(null)
         }}
       />
     </ScrollView>
