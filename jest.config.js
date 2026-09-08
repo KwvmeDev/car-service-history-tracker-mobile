@@ -39,7 +39,10 @@ const rnUniverse = [
 module.exports = {
   preset: 'jest-expo',
   setupFilesAfterEnv: ['<rootDir>/test/setup.ts'],
-  testMatch: ['<rootDir>/src/**/*.test.{ts,tsx}', '<rootDir>/app/**/*.test.{ts,tsx}'],
+  // `app/` is route-only: Expo Router's require.context globs every .tsx there into the
+  // bundle (test files included), and @testing-library/react-native's module-load peer-dep
+  // check then throws in the browser. Route-component tests live in `test/routes/`.
+  testMatch: ['<rootDir>/src/**/*.test.{ts,tsx}', '<rootDir>/test/**/*.test.{ts,tsx}'],
   clearMocks: true,
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'mjs', 'cjs', 'json', 'node'],
   transform: {

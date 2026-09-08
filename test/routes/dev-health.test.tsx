@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react-native'
 
 import { api } from '@/api/client'
 
-import HealthScreen from './dev-health'
+import HealthScreen from '../../app/dev-health'
 
 // The api wrapper is the seam. The screen's four states are driven entirely by what
 // api.GET resolves/rejects with (docs/testing-strategy.md — test the states, not fetch).

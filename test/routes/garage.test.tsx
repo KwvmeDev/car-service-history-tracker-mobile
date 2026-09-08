@@ -5,7 +5,7 @@ import { render, screen, waitFor } from '@testing-library/react-native'
 import * as vehicleApi from '@/features/vehicles/api'
 import type { VehicleListItem } from '@/features/vehicles/types'
 
-import GarageScreen from './garage'
+import GarageScreen from '../../app/garage'
 
 jest.mock('@/features/vehicles/api')
 jest.mock('expo-router', () => ({
