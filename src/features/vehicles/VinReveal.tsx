@@ -48,6 +48,6 @@ function RevealRow({ label, value, delay }: { label: string; value: string; dela
 }
 
 const styles = StyleSheet.create({
-  wrap: { gap: space[2] },
+  wrap: { gap: space.xs },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
 })

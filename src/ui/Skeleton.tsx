@@ -57,8 +57,8 @@ const styles = StyleSheet.create({
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: color.hairline,
     borderRadius: radius.md,
-    padding: space[4],
-    gap: space[3],
+    padding: space.md,
+    gap: space.sm,
   },
   divider: { height: StyleSheet.hairlineWidth, backgroundColor: color.hairline },
 })

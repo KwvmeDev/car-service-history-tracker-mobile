@@ -31,7 +31,7 @@ export function VehicleCard({
     >
       <View style={styles.topRow}>
         <View style={styles.identity}>
-          <AppText token="title" weight="medium" tone="onNavy" numberOfLines={1}>
+          <AppText token="title" tone="onNavy" numberOfLines={1}>
             {title}
           </AppText>
           {vehicle.vin != null ? (
@@ -67,7 +67,7 @@ export function VehicleCard({
 }
 
 const styles = StyleSheet.create({
-  topRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: space[2] },
-  identity: { flex: 1, gap: space[1] },
+  topRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: space.xs },
+  identity: { flex: 1, gap: space.xxs },
   divider: { height: StyleSheet.hairlineWidth, backgroundColor: color.hairline },
 })

@@ -1,6 +1,6 @@
 import { type ReactNode } from 'react'
 import { Pressable, StyleSheet, View, type ViewStyle } from 'react-native'
-import { color, radius, space } from '@revv/tokens'
+import { borderWidth, color, radius, shadow, space } from '@revv/tokens'
 
 export interface CardProps {
   children: ReactNode
@@ -49,12 +49,15 @@ export function Card({
 }
 
 const styles = StyleSheet.create({
-  base: { borderRadius: radius.md, padding: space[4], gap: space[3] },
-  navy: { backgroundColor: color.navy },
+  base: { borderRadius: radius.md, padding: space.lg, gap: space.sm },
+  // A navy card floats — colour-blocking is the primary depth cue, shadow is secondary
+  // (open-design.ai-DESIGN.md §6).
+  navy: { backgroundColor: color.navy, ...shadow.lg.native },
   white: {
     backgroundColor: color.white,
-    borderWidth: StyleSheet.hairlineWidth,
+    borderWidth: borderWidth.thin,
     borderColor: color.hairline,
+    ...shadow.sm.native,
   },
   pressed: { opacity: 0.92 },
 })

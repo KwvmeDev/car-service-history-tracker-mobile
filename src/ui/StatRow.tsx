@@ -43,6 +43,6 @@ export function StatRow({ stats, surface = 'navy' }: StatRowProps) {
 
 const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'flex-start' },
-  cell: { flex: 1, gap: space[1] },
+  cell: { flex: 1, gap: space.xxs },
   rule: { width: StyleSheet.hairlineWidth, alignSelf: 'stretch', backgroundColor: color.hairline },
 })

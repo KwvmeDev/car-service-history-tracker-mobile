@@ -32,6 +32,6 @@ export function ErrorState({
 }
 
 const styles = StyleSheet.create({
-  wrap: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space[4], padding: space[5] },
+  wrap: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space.md, padding: space.xl },
   message: { textAlign: 'center', maxWidth: 300 },
 })

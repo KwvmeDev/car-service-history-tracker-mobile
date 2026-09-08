@@ -108,7 +108,7 @@ export default function AddVehicleScreen() {
         {phase.step === 'decoded' ? (
           <>
             <Card surface="white">
-              <AppText token="title" weight="medium">
+              <AppText token="title">
                 {phase.vehicle.nickname ??
                   [phase.vehicle.year, phase.vehicle.make, phase.vehicle.model]
                     .filter(Boolean)
@@ -139,6 +139,6 @@ export default function AddVehicleScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  content: { padding: space[5], gap: space[4], flexGrow: 1 },
+  content: { padding: space.xl, gap: space.md, flexGrow: 1 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
 })

@@ -57,6 +57,6 @@ export function SocialButtons({ onSignedIn }: { onSignedIn: () => void }) {
 }
 
 const styles = StyleSheet.create({
-  wrap: { gap: space[3], alignSelf: 'stretch' },
-  divider: { alignItems: 'center', paddingVertical: space[2] },
+  wrap: { gap: space.sm, alignSelf: 'stretch' },
+  divider: { alignItems: 'center', paddingVertical: space.xs },
 })

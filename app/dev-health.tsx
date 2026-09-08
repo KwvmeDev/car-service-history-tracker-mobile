@@ -57,26 +57,26 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: color.white, padding: space[5] },
-  center: { alignItems: 'center', justifyContent: 'center', gap: space[3] },
+  screen: { flex: 1, backgroundColor: color.white, padding: space.xl },
+  center: { alignItems: 'center', justifyContent: 'center', gap: space.sm },
   card: {
     backgroundColor: color.navy,
     borderRadius: radius.md,
-    padding: space[5],
-    gap: space[2],
+    padding: space.xl,
+    gap: space.xs,
   },
   row: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingVertical: space[2],
+    paddingVertical: space.xs,
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: color.hairline,
   },
   label: { color: color.navySubtle, ...textStyle('label') },
   value: { color: color.white, ...textStyle('mono') },
   notice: {
-    marginTop: space[3],
-    padding: space[3],
+    marginTop: space.sm,
+    padding: space.sm,
     borderRadius: radius.sm,
     backgroundColor: color.amberWash,
     color: color.amber,

@@ -67,7 +67,7 @@ export default function VehicleProfileScreen() {
       >
         <View style={styles.identityRow}>
           <View style={styles.identity}>
-            <AppText token="display" weight="medium" tone="onNavy">
+            <AppText token="display" tone="onNavy">
               {title}
             </AppText>
             {vehicle.vin != null ? (
@@ -156,31 +156,31 @@ export default function VehicleProfileScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.white },
-  content: { padding: space[4], gap: space[4] },
-  header: { backgroundColor: color.navy, borderRadius: radius.md, padding: space[4], gap: space[3] },
+  content: { padding: space.md, gap: space.md },
+  header: { backgroundColor: color.navy, borderRadius: radius.md, padding: space.md, gap: space.sm },
   headerSkeleton: {
     backgroundColor: color.white,
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: color.hairline,
     borderRadius: radius.md,
-    padding: space[4],
-    gap: space[3],
-    margin: space[4],
+    padding: space.md,
+    gap: space.sm,
+    margin: space.md,
   },
-  identityRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: space[2] },
-  identity: { flex: 1, gap: space[1] },
+  identityRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: space.xs },
+  identity: { flex: 1, gap: space.xxs },
   divider: { height: StyleSheet.hairlineWidth, backgroundColor: color.hairline },
   statsRow: { flexDirection: 'row', alignItems: 'flex-start' },
-  stat: { flex: 1, gap: space[1] },
+  stat: { flex: 1, gap: space.xxs },
   rule: { width: StyleSheet.hairlineWidth, alignSelf: 'stretch', backgroundColor: color.hairline },
-  actions: { flexDirection: 'row', gap: space[3], alignItems: 'center' },
-  timeline: { gap: space[3] },
+  actions: { flexDirection: 'row', gap: space.sm, alignItems: 'center' },
+  timeline: { gap: space.sm },
   timelineEmpty: {
     borderWidth: StyleSheet.hairlineWidth,
     borderColor: color.hairline,
     borderRadius: radius.sm,
     borderStyle: 'dashed',
-    padding: space[5],
+    padding: space.xl,
   },
   timelineText: { textAlign: 'center' },
 })

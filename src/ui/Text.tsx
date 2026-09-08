@@ -14,9 +14,9 @@ const TONE: Record<ToneName, string> = {
 }
 
 export interface AppTextProps extends RNTextProps {
-  /** A @revv/tokens type token — display | title | body | label | mono | caption. */
+  /** A @revv/tokens type token — display | title | heading | body | label | mono | caption. */
   token?: TextToken
-  /** 'regular' (400) or 'medium' (500). Nothing else exists (design-system.md). */
+  /** Override the token's default weight: regular | medium | semibold | bold. */
   weight?: TextWeightName
   /** Force the monospace data family (VIN, odometer, dates, costs). */
   data?: boolean

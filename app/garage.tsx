@@ -105,6 +105,6 @@ export default function GarageScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  list: { padding: space[4], gap: space[4] },
-  addRow: { paddingVertical: space[4], alignItems: 'center' },
+  list: { padding: space.md, gap: space.md },
+  addRow: { paddingVertical: space.md, alignItems: 'center' },
 })

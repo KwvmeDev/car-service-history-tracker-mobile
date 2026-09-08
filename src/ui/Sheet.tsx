@@ -8,7 +8,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native'
-import { color, radius, space } from '@revv/tokens'
+import { color, radius, shadow, space } from '@revv/tokens'
 
 import { AppText } from './Text'
 import { enterTiming, exitTiming } from './motion'
@@ -54,7 +54,7 @@ export function Sheet({ visible, onDismiss, title, children }: SheetProps) {
           <Animated.View style={[styles.sheet, { transform: [{ translateY }] }]}>
             <View style={styles.grabber} />
             <View style={styles.header}>
-              <AppText token="title" weight="medium">
+              <AppText token="title">
                 {title}
               </AppText>
               <Pressable accessibilityRole="button" accessibilityLabel="Close" onPress={onDismiss}>
@@ -78,10 +78,11 @@ const styles = StyleSheet.create({
     backgroundColor: color.white,
     borderTopLeftRadius: radius.lg,
     borderTopRightRadius: radius.lg,
-    padding: space[5],
-    paddingBottom: space[7],
-    gap: space[4],
+    padding: space.xl,
+    paddingBottom: space.band,
+    gap: space.md,
     maxHeight: '88%',
+    ...shadow.xl.native,
   },
   grabber: {
     alignSelf: 'center',

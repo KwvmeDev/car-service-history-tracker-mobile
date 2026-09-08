@@ -41,8 +41,8 @@ const STATUS_STYLE = StyleSheet.create({
 const styles = StyleSheet.create({
   base: {
     alignSelf: 'flex-start',
-    borderRadius: radius.sm,
-    paddingHorizontal: space[2],
-    paddingVertical: space[1],
+    borderRadius: radius.full,
+    paddingHorizontal: space.sm,
+    paddingVertical: space.xxs,
   },
 })

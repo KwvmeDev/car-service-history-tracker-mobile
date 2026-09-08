@@ -1,6 +1,11 @@
 import { useEffect } from 'react'
 import { View } from 'react-native'
-import { Inter_400Regular, Inter_500Medium } from '@expo-google-fonts/inter'
+import {
+  AlbertSans_400Regular,
+  AlbertSans_500Medium,
+  AlbertSans_600SemiBold,
+  AlbertSans_700Bold,
+} from '@expo-google-fonts/albert-sans'
 import { JetBrainsMono_400Regular } from '@expo-google-fonts/jetbrains-mono'
 import { useFonts } from 'expo-font'
 import { SplashScreen, Stack, useRouter, useSegments } from 'expo-router'
@@ -10,10 +15,11 @@ import { color, text } from '@revv/tokens'
 
 import { QueryProvider } from '@/data/QueryProvider'
 import { useSession } from '@/features/auth/use-session'
+import { resolveFontFamily } from '@/ui/typography'
 
 // Root layout. Screen chrome pulls colour and type from @revv/tokens — no raw literals.
-// The splash is held until Inter (400/500) and JetBrains Mono (400) are in memory so
-// the app never paints a fallback-font frame (docs/design-system.md §Typography).
+// The splash is held until Albert Sans (400/500/600/700) and JetBrains Mono (400) are
+// in memory so the app never paints a fallback-font frame (docs/design-system.md §Typography).
 void SplashScreen.preventAutoHideAsync()
 
 const AUTH_ROUTES = new Set(['sign-in', 'sign-up', 'verify-email'])
@@ -43,7 +49,10 @@ function AuthGate() {
       screenOptions={{
         headerStyle: { backgroundColor: color.navy },
         headerTintColor: color.white,
-        headerTitleStyle: { fontSize: text.title.fontSize },
+        headerTitleStyle: {
+          fontSize: text.title.fontSize,
+          fontFamily: resolveFontFamily('ui', text.title.weight),
+        },
         contentStyle: { backgroundColor: color.white },
         animation: 'slide_from_right',
         animationDuration: 320,
@@ -66,8 +75,10 @@ function AuthGate() {
 
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useFonts({
-    Inter_400Regular,
-    Inter_500Medium,
+    AlbertSans_400Regular,
+    AlbertSans_500Medium,
+    AlbertSans_600SemiBold,
+    AlbertSans_700Bold,
     JetBrainsMono_400Regular,
   })
 

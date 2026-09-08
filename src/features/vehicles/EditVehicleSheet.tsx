@@ -47,7 +47,7 @@ export function EditVehicleSheet({
 
   return (
     <Sheet visible={visible} onDismiss={onDismiss} title="Edit vehicle">
-      <View style={{ gap: space[4] }}>
+      <View style={{ gap: space.md }}>
         <Field label="Nickname" value={nickname} onChangeText={setNickname} />
         <Field
           label="Current mileage"

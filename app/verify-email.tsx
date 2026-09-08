@@ -32,7 +32,7 @@ export default function VerifyEmailScreen() {
 
   return (
     <View style={styles.wrap}>
-      <AppText token="title" weight="medium">
+      <AppText token="title">
         Check your email
       </AppText>
       <AppText token="body" tone="secondary" style={styles.body}>
@@ -65,6 +65,6 @@ export default function VerifyEmailScreen() {
 }
 
 const styles = StyleSheet.create({
-  wrap: { flex: 1, padding: space[5], gap: space[4], justifyContent: 'center' },
+  wrap: { flex: 1, padding: space.xl, gap: space.md, justifyContent: 'center' },
   body: { lineHeight: 22 },
 })

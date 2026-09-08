@@ -30,7 +30,7 @@ export default function SignInScreen() {
     >
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <View style={styles.header}>
-          <AppText token="display" weight="medium">
+          <AppText token="display">
             Revv
           </AppText>
           <AppText token="body" tone="secondary">
@@ -87,7 +87,7 @@ export default function SignInScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  content: { padding: space[5], gap: space[4], flexGrow: 1, justifyContent: 'center' },
-  header: { gap: space[1], marginBottom: space[2] },
+  content: { padding: space.xl, gap: space.md, flexGrow: 1, justifyContent: 'center' },
+  header: { gap: space.xxs, marginBottom: space.xs },
   footer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
 })

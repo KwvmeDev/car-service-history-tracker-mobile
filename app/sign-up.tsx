@@ -73,5 +73,5 @@ export default function SignUpScreen() {
 
 const styles = StyleSheet.create({
   flex: { flex: 1 },
-  content: { padding: space[5], gap: space[4] },
+  content: { padding: space.xl, gap: space.md },
 })

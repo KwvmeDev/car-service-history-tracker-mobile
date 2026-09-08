@@ -51,7 +51,7 @@ export function EmptyState({ glyph, title, body, actionLabel, onAction }: EmptyS
   return (
     <View style={styles.wrap}>
       <Animated.Text style={[styles.glyph, { transform: [{ translateY }] }]}>{glyph}</Animated.Text>
-      <AppText token="title" weight="medium">
+      <AppText token="title">
         {title}
       </AppText>
       <AppText token="body" tone="secondary" style={styles.body}>
@@ -68,7 +68,7 @@ export function EmptyState({ glyph, title, body, actionLabel, onAction }: EmptyS
 }
 
 const styles = StyleSheet.create({
-  wrap: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space[3], padding: space[5] },
+  wrap: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space.sm, padding: space.xl },
   glyph: { fontSize: 44, color: color.navy },
   body: { textAlign: 'center', maxWidth: 280 },
 })

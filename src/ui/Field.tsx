@@ -1,5 +1,6 @@
+import { useState } from 'react'
 import { StyleSheet, TextInput, View, type TextInputProps } from 'react-native'
-import { color, radius, space, text } from '@revv/tokens'
+import { borderWidth, color, radius, space, text } from '@revv/tokens'
 
 import { AppText } from './Text'
 import { resolveFontFamily } from './typography'
@@ -14,24 +15,37 @@ export interface FieldProps extends Omit<TextInputProps, 'style'> {
 
 /**
  * A labelled text input. One field per concept, stacked with generous space — never a
- * dense grid (design-system.md §Simplicity). Errors are inline, not a toast.
+ * dense grid (design-system.md §Simplicity). Inputs use `radius.xs`; the border goes
+ * navy on focus (open-design.ai-DESIGN.md §states). Errors are inline, not a toast.
  */
-export function Field({ label, error, data = false, ...input }: FieldProps) {
+export function Field({ label, error, data = false, onFocus, onBlur, ...input }: FieldProps) {
+  const [focused, setFocused] = useState(false)
+  const hasError = error != null && error.length > 0
+
   return (
     <View style={styles.wrap}>
       <AppText token="label" tone="secondary">
         {label}
       </AppText>
       <TextInput
-        placeholderTextColor={color.ink}
+        placeholderTextColor={color.hairline}
+        onFocus={(e) => {
+          setFocused(true)
+          onFocus?.(e)
+        }}
+        onBlur={(e) => {
+          setFocused(false)
+          onBlur?.(e)
+        }}
         style={[
           styles.input,
           { fontFamily: resolveFontFamily(data ? 'data' : 'ui', 400) },
-          error != null && error.length > 0 ? styles.inputError : undefined,
+          focused && !hasError ? styles.inputActive : undefined,
+          hasError ? styles.inputError : undefined,
         ]}
         {...input}
       />
-      {error != null && error.length > 0 ? (
+      {hasError ? (
         <AppText token="caption" tone="attention">
           {error}
         </AppText>
@@ -41,16 +55,18 @@ export function Field({ label, error, data = false, ...input }: FieldProps) {
 }
 
 const styles = StyleSheet.create({
-  wrap: { gap: space[1], alignSelf: 'stretch' },
+  wrap: { gap: space.xxs, alignSelf: 'stretch' },
   input: {
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: color.ink,
-    borderRadius: radius.sm,
-    paddingHorizontal: space[3],
-    paddingVertical: space[3],
+    borderWidth: borderWidth.thin,
+    borderColor: color.hairline,
+    borderRadius: radius.xs,
+    paddingHorizontal: space.sm,
+    paddingVertical: space.sm,
     fontSize: text.body.fontSize,
     color: color.ink,
+    backgroundColor: color.white,
     minHeight: 48,
   },
+  inputActive: { borderColor: color.navy },
   inputError: { borderColor: color.amber },
 })
