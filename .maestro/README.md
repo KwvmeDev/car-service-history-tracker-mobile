@@ -33,7 +33,9 @@ with `TEST_SUPPORT_ENABLED=1`, seeds a user, `maestro test .maestro`.
    ```bash
    cd ../revv-api
    npm run db:up && npm run migrate:deploy && npm run db:seed
-   TEST_SUPPORT_ENABLED=1 npm run dev        # http://localhost:3000
+   NODE_ENV=test TEST_SUPPORT_ENABLED=1 npm run dev   # http://localhost:3000
+   #  NODE_ENV=test skips the external breach-password check that otherwise makes
+   #  /v1/_test/users slow and flaky locally.
    ```
 
 2. **Seed the verified user the flows sign in as:**
