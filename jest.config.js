@@ -1,6 +1,6 @@
 // revv-mobile runs on jest-expo + @testing-library/react-native (docs/testing-strategy.md,
 // "Runner split", decided Sprint 2). Vitest does not run RN's transform pipeline +
-// Reanimated 4 cleanly on Expo SDK 55 / RN 0.82 / React 19.1.
+// Reanimated 4 cleanly on Expo SDK 55 / RN 0.83 / React 19.2.
 //
 // better-auth and much of its dependency tree ship ESM as .mjs / untranspiled .js, so
 // the transform matches .mjs/.cjs too and those packages are excluded from
@@ -44,6 +44,10 @@ module.exports = {
   // check then throws in the browser. Route-component tests live in `test/routes/`.
   testMatch: ['<rootDir>/src/**/*.test.{ts,tsx}', '<rootDir>/test/**/*.test.{ts,tsx}'],
   clearMocks: true,
+  // RN 0.83's transform pipeline is heavy on a cold cache; a route-component test
+  // that renders the full tree + a TanStack Query resolve can brush the 5s default
+  // on a busy machine. 15s gives headroom without masking a real hang.
+  testTimeout: 15000,
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'mjs', 'cjs', 'json', 'node'],
   transform: {
     // better-auth's ESM ships as .mjs, which the jest-expo preset's transform regex
