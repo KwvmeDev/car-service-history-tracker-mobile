@@ -1,0 +1,40 @@
+# Add a vehicle by hand (skip VIN decode) and log a service against it, then see
+# the entry stamp onto the timeline.
+#
+# Runs after sign-in.yaml (executionOrder in config.yaml) — assumes a signed-in
+# user sitting in the garage.
+
+appId: com.revv.app
+---
+- launchApp
+
+# --- add a vehicle (no VIN) ---
+- tapOn: "Add a vehicle"
+- assertVisible: "Add a vehicle"          # the modal title
+- tapOn:
+    id: "field-Nickname (optional)"
+- inputText: "Maestro Wagon"
+- hideKeyboard
+- tapOn: "Add vehicle"
+- tapOn: "Go to the vehicle"
+
+# --- log a service ---
+- assertVisible: "Log a service"
+- tapOn: "Log a service"
+- assertVisible: "Log a service"          # the sheet title
+- tapOn: "Oil change"                     # a type chip
+- tapOn:
+    id: "field-Date"
+- inputText: "2026-03-01"
+- tapOn:
+    id: "field-Mileage"
+- inputText: "54000"
+- tapOn:
+    id: "field-Shop"
+- inputText: "Maestro Auto"
+- hideKeyboard
+- tapOn: "Log service"
+
+# --- the entry is on the timeline ---
+- assertVisible: "Oil change"
+- assertVisible: "Maestro Auto"

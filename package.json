@@ -17,6 +17,7 @@
     "lint": "eslint .",
     "pretest": "node scripts/generate-client.mjs",
     "test": "jest",
+    "test:e2e:maestro": "maestro test .maestro",
     "client:generate": "node scripts/generate-client.mjs"
   },
   "dependencies": {

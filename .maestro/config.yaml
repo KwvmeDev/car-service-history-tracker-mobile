@@ -1,0 +1,15 @@
+# Maestro workspace config (Sprint 12).
+#
+# These flows are LOCAL-ONLY — they are not run in CI. See README.md for why and
+# for the one-time setup (a dev build on a simulator/emulator + a local revv-api
+# with the ADR 0016 test-support seam).
+
+flows:
+  - "*.yaml"
+
+executionOrder:
+  continueOnFailure: false
+  flowsOrder:
+    - sign-in
+    - add-vehicle-and-log-service
+    - generate-resale-report

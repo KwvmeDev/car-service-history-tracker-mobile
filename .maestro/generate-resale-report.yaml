@@ -1,0 +1,31 @@
+# Generate a resale report for a vehicle that already has a logged service — the
+# "printing" moment, then the shareable link.
+#
+# Runs after add-vehicle-and-log-service.yaml — assumes the "Maestro Wagon"
+# vehicle page is open (or reachable from the garage).
+
+appId: com.revv.app
+---
+- launchApp
+
+# Get to the vehicle page if the garage is showing
+- runFlow:
+    when:
+      visible: "Garage"
+    commands:
+      - tapOn: "Maestro Wagon"
+
+- assertVisible: "Resale report"
+- tapOn: "Resale report"
+
+- assertVisible: "Resale reports"          # the sheet
+- tapOn:
+    text: "Generate resale report|Generate a new report"
+
+# The printing animation runs, then the ready state
+- assertVisible:
+    text: "Report ready"
+    timeout: 30000
+- assertVisible: "Share link"
+
+- tapOn: "Done"

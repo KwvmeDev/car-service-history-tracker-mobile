@@ -1,0 +1,29 @@
+# Sign in as a pre-seeded, email-verified user.
+#
+# Seed the user first (see README.md):
+#   curl -sX POST "$API/v1/_test/users" -H 'content-type: application/json' \
+#     -d '{"email":"maestro@revv.test","password":"maestro-Zx9-passphrase"}'
+#
+# The app must be a dev/EAS build pointed at that same revv-api
+# (EXPO_PUBLIC_API_BASE_URL).
+
+appId: com.revv.app
+env:
+  EMAIL: maestro@revv.test
+  PASSWORD: maestro-Zx9-passphrase
+---
+- launchApp:
+    clearState: true
+
+- assertVisible: "Sign in to your garage."
+- tapOn:
+    id: "field-Email"
+- inputText: ${EMAIL}
+- tapOn:
+    id: "field-Password"
+- inputText: ${PASSWORD}
+- hideKeyboard
+- tapOn: "Sign in"
+
+# A freshly seeded user lands in an empty garage.
+- assertVisible: "Add a vehicle"

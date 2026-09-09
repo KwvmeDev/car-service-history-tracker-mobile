@@ -22,8 +22,17 @@ npm start               # expo start — open in Expo Go or a dev client
 | `npm start` | Expo dev server (runs `client:generate` first) |
 | `npm run typecheck` | `tsc --noEmit` |
 | `npm run lint` | ESLint (flat config from the hub's `config-base`) |
-| `npm test` | Vitest — `useHealth` hook states |
+| `npm test` | jest-expo — unit + component + hook tests |
+| `npm run test:e2e:maestro` | Maestro flows (local only — see below) |
 | `npm run client:generate` | regenerate `src/api/generated/**` + `openapi/.spec-hash` |
+
+## e2e (Maestro)
+
+`.maestro/` has flows for the critical journeys (sign-in, add vehicle → log service,
+generate resale report). **Local only** — Maestro needs a dev/EAS build + a
+device/emulator, so it is not in CI. Setup and the reasoning are in
+[`.maestro/README.md`](.maestro/README.md); the hub `docs/e2e.md` is the cross-repo
+runbook.
 
 ## API contract
 

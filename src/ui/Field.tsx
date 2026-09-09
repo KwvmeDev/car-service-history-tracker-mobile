@@ -18,9 +18,12 @@ export interface FieldProps extends Omit<TextInputProps, 'style'> {
  * dense grid (design-system.md §Simplicity). Inputs use `radius.xs`; the border goes
  * navy on focus (open-design.ai-DESIGN.md §states). Errors are inline, not a toast.
  */
-export function Field({ label, error, data = false, onFocus, onBlur, ...input }: FieldProps) {
+export function Field({ label, error, data = false, testID, onFocus, onBlur, ...input }: FieldProps) {
   const [focused, setFocused] = useState(false)
   const hasError = error != null && error.length > 0
+  // A stable id derived from the label so e2e (Maestro) can target the input
+  // without matching on layout. An explicit `testID` still wins.
+  const inputTestID = testID ?? `field-${label}`
 
   return (
     <View style={styles.wrap}>
@@ -28,6 +31,7 @@ export function Field({ label, error, data = false, onFocus, onBlur, ...input }:
         {label}
       </AppText>
       <TextInput
+        testID={inputTestID}
         placeholderTextColor={color.hairline}
         onFocus={(e) => {
           setFocused(true)
