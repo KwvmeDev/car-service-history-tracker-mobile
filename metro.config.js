@@ -15,6 +15,7 @@ config.resolver.nodeModulesPaths = [
   path.resolve(projectRoot, 'node_modules'),
   path.resolve(tokensRoot, 'node_modules'),
 ]
-config.resolver.unstable_enableSymlinks = true
+// Symlink resolution is on by default in the Metro that ships with SDK 55; the old
+// `unstable_enableSymlinks` flag is gone (expo-doctor flags setting it as a mismatch).
 
 module.exports = config

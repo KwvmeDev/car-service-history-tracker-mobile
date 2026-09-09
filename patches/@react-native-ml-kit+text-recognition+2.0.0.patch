@@ -1,0 +1,15 @@
+diff --git a/node_modules/@react-native-ml-kit/text-recognition/android/build.gradle b/node_modules/@react-native-ml-kit/text-recognition/android/build.gradle
+index 6a2e36f..96014f0 100644
+--- a/node_modules/@react-native-ml-kit/text-recognition/android/build.gradle
++++ b/node_modules/@react-native-ml-kit/text-recognition/android/build.gradle
+@@ -10,6 +10,10 @@ def safeExtGet(prop, fallback) {
+ }
+ 
+ apply plugin: 'com.android.library'
++// patch-package: needed so the React Native Gradle Plugin rewrites the
++// 'com.facebook.react:react-native:+' dependency below to 'react-android:<version>'
++// on RN > 0.71 (the module ships an ancient build.gradle). Matches react-native-mmkv.
++apply plugin: 'com.facebook.react'
+ 
+ buildscript {
+     // The Android Gradle plugin is only required when opening the android folder stand-alone.

@@ -6,15 +6,13 @@
     "scheme": "revv",
     "orientation": "portrait",
     "userInterfaceStyle": "light",
-    "newArchEnabled": true,
     "ios": {
       "bundleIdentifier": "com.revv.app",
       "supportsTablet": false,
       "usesAppleSignIn": true
     },
     "android": {
-      "package": "com.revv.app",
-      "edgeToEdgeEnabled": true
+      "package": "com.revv.app"
     },
     "plugins": [
       "expo-router",
