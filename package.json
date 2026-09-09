@@ -25,6 +25,7 @@
     "@expo-google-fonts/jetbrains-mono": "^0.4.1",
     "@expo/metro-runtime": "6.1.1",
     "@react-native-google-signin/google-signin": "^16.1.5",
+    "@react-native-ml-kit/text-recognition": "2.0.0",
     "@revv/tokens": "file:../revv-tokens",
     "@tanstack/react-query": "^5.102.8",
     "@tanstack/react-query-persist-client": "^5.102.8",

@@ -106,3 +106,11 @@ jest.mock('expo-secure-store', () => {
     __store: store,
   }
 })
+
+// @react-native-ml-kit/text-recognition is a native module (no JS impl in the test
+// runtime). Default to empty text; a test overrides `recognize` per case.
+jest.mock('@react-native-ml-kit/text-recognition', () => ({
+  __esModule: true,
+  default: { recognize: jest.fn(() => Promise.resolve({ text: '', blocks: [] })) },
+  TextRecognitionScript: { LATIN: 'Latin' },
+}))
