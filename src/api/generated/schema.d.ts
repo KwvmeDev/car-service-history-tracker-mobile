@@ -154,6 +154,559 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/m/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** What a shop needs to submit a service — no auth, the token is the key */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    token: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            currentMileage: number | null;
+                            make: string | null;
+                            mileageUnit: string;
+                            model: string | null;
+                            nickname: string | null;
+                            serviceTypes: {
+                                key: string;
+                                label: string;
+                            }[];
+                            year: number | null;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/m/{token}/submissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Submit a service for the owner to review */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    token: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        costCurrency?: string | null;
+                        costMinor?: number | null;
+                        mileage?: number | null;
+                        notes?: string | null;
+                        /** Format: date */
+                        performedOn: string;
+                        serviceTypeKey: string;
+                        shopName: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @enum {boolean} */
+                            received: true;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/mechanic-links/{id}/revoke": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revoke a shop link */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/mechanic-submissions/{id}/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Accept a submission — mints a service record */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            costCurrency: string | null;
+                            costMinor: number | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                            id: string;
+                            mileage: number | null;
+                            notes: string | null;
+                            /** Format: date */
+                            performedOn: string;
+                            reviewedAt: string | null;
+                            serviceRecordId: string | null;
+                            serviceTypeKey: string;
+                            shopName: string;
+                            /** @enum {string} */
+                            status: "pending" | "accepted" | "rejected";
+                            vehicleId: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/mechanic-submissions/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reject a submission */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            costCurrency: string | null;
+                            costMinor: number | null;
+                            /** Format: date-time */
+                            createdAt: string;
+                            id: string;
+                            mileage: number | null;
+                            notes: string | null;
+                            /** Format: date */
+                            performedOn: string;
+                            reviewedAt: string | null;
+                            serviceRecordId: string | null;
+                            serviceTypeKey: string;
+                            shopName: string;
+                            /** @enum {string} */
+                            status: "pending" | "accepted" | "rejected";
+                            vehicleId: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/notification-preferences": {
         parameters: {
             query?: never;
@@ -731,6 +1284,8 @@ export interface paths {
                                     id: string;
                                     mileage: number | null;
                                     notes: string | null;
+                                    /** @enum {string} */
+                                    origin: "owner" | "shop";
                                     serviceTypeKey: string;
                                     serviceTypeLabel: string;
                                     shopName: string | null;
@@ -1523,6 +2078,8 @@ export interface paths {
                             id: string;
                             mileage: number | null;
                             notes: string | null;
+                            /** @enum {string} */
+                            origin: "owner" | "shop";
                             performedOn: string;
                             serviceTypeKey: string;
                             shopName: string | null;
@@ -1763,6 +2320,8 @@ export interface paths {
                             id: string;
                             mileage: number | null;
                             notes: string | null;
+                            /** @enum {string} */
+                            origin: "owner" | "shop";
                             performedOn: string;
                             serviceTypeKey: string;
                             shopName: string | null;
@@ -2920,6 +3479,369 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/vehicles/{vehicleId}/mechanic-links": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A vehicle's shop links */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    vehicleId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                /** Format: date-time */
+                                createdAt: string;
+                                /** Format: date-time */
+                                expiresAt: string;
+                                id: string;
+                                label: string;
+                                lastUsedAt: string | null;
+                                revokedAt: string | null;
+                                /** @enum {string} */
+                                status: "active" | "revoked" | "expired";
+                                useCount: number;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        /** Generate a shop link (the URL is returned once) */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    vehicleId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        label?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Default Response */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            link: {
+                                /** Format: date-time */
+                                createdAt: string;
+                                /** Format: date-time */
+                                expiresAt: string;
+                                id: string;
+                                label: string;
+                                lastUsedAt: string | null;
+                                revokedAt: string | null;
+                                /** @enum {string} */
+                                status: "active" | "revoked" | "expired";
+                                useCount: number;
+                            };
+                            url: string;
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/vehicles/{vehicleId}/mechanic-submissions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A vehicle's shop submissions (filter by status) */
+        get: {
+            parameters: {
+                query?: {
+                    status?: "pending" | "accepted" | "rejected";
+                };
+                header?: never;
+                path: {
+                    vehicleId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Default Response */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                costCurrency: string | null;
+                                costMinor: number | null;
+                                /** Format: date-time */
+                                createdAt: string;
+                                id: string;
+                                mileage: number | null;
+                                notes: string | null;
+                                /** Format: date */
+                                performedOn: string;
+                                reviewedAt: string | null;
+                                serviceRecordId: string | null;
+                                serviceTypeKey: string;
+                                shopName: string;
+                                /** @enum {string} */
+                                status: "pending" | "accepted" | "rejected";
+                                vehicleId: string;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Default Response */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+                /** @description Default Response */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            error: {
+                                code: string;
+                                details?: {
+                                    message: string;
+                                    path: string;
+                                }[];
+                                message: string;
+                                requestId: string;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/vehicles/{vehicleId}/reminders": {
         parameters: {
             query?: never;
@@ -3506,6 +4428,8 @@ export interface paths {
                                 id: string;
                                 mileage: number | null;
                                 notes: string | null;
+                                /** @enum {string} */
+                                origin: "owner" | "shop";
                                 performedOn: string;
                                 serviceTypeKey: string;
                                 shopName: string | null;
@@ -3649,6 +4573,8 @@ export interface paths {
                             id: string;
                             mileage: number | null;
                             notes: string | null;
+                            /** @enum {string} */
+                            origin: "owner" | "shop";
                             performedOn: string;
                             serviceTypeKey: string;
                             shopName: string | null;
@@ -3685,6 +4611,8 @@ export interface paths {
                             id: string;
                             mileage: number | null;
                             notes: string | null;
+                            /** @enum {string} */
+                            origin: "owner" | "shop";
                             performedOn: string;
                             serviceTypeKey: string;
                             shopName: string | null;

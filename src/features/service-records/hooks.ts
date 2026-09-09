@@ -83,6 +83,7 @@ export function useLogServiceRecord(vehicleId: string) {
         costCurrency: body.costCurrency ?? null,
         shopName: body.shopName ?? null,
         notes: body.notes ?? null,
+        origin: 'owner',
         attachments: [],
         createdAt: now,
         updatedAt: now,

@@ -19,6 +19,8 @@ import { useReminders, worstStatus } from '@/features/reminders/hooks'
 import { useReminderNotifications } from '@/features/reminders/use-reminder-notifications'
 import { GenerateReportFlow } from '@/features/reports/GenerateReportFlow'
 import { ReportsSheet } from '@/features/reports/ReportsSheet'
+import { ShopAccessSheet } from '@/features/mechanic/ShopAccessSheet'
+import { ShopSubmissions } from '@/features/mechanic/ShopSubmissions'
 
 export default function VehicleProfileScreen() {
   const { id } = useLocalSearchParams<{ id: string }>()
@@ -37,6 +39,7 @@ export default function VehicleProfileScreen() {
   const [reportsOpen, setReportsOpen] = useState(false)
   const [generating, setGenerating] = useState(false)
   const [regenerateId, setRegenerateId] = useState<string | null>(null)
+  const [shopAccessOpen, setShopAccessOpen] = useState(false)
 
   const editingRecord = useMemo(
     () => records.data?.find((r) => r.id === editingRecordId),
@@ -173,6 +176,8 @@ export default function VehicleProfileScreen() {
         ) : null}
       </View>
 
+      <ShopSubmissions vehicleId={id} />
+
       <Timeline
         vehicleId={id}
         onAddPress={() => {
@@ -200,7 +205,23 @@ export default function VehicleProfileScreen() {
         <AppText token="caption" tone="secondary" style={styles.reportHint}>
           Turn this history into a document a buyer can open in any browser.
         </AppText>
+        <Button
+          label="Shop access"
+          variant="text"
+          onPress={() => {
+            setShopAccessOpen(true)
+          }}
+        />
       </View>
+
+      <ShopAccessSheet
+        vehicleId={id}
+        vehicleLabel={title}
+        visible={shopAccessOpen}
+        onDismiss={() => {
+          setShopAccessOpen(false)
+        }}
+      />
 
       <EditVehicleSheet
         vehicle={vehicle}
