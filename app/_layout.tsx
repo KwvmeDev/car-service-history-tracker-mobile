@@ -69,6 +69,7 @@ function AuthGate() {
       <Stack.Screen name="sign-up" options={{ title: 'Create your account' }} />
       <Stack.Screen name="verify-email" options={{ title: 'Verify your email' }} />
       <Stack.Screen name="garage" options={{ title: 'Garage' }} />
+      <Stack.Screen name="settings" options={{ title: 'Settings' }} />
       <Stack.Screen
         name="vehicle/new"
         options={{ title: 'Add a vehicle', presentation: 'modal' }}

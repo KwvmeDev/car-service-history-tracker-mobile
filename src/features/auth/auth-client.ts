@@ -1,9 +1,23 @@
 import { expoClient } from '@better-auth/expo/client'
+import { twoFactorClient } from 'better-auth/client/plugins'
 import { createAuthClient } from 'better-auth/react'
 
 import { apiBaseUrl } from '@/api/base-url'
 
 import { AUTH_SCHEME, AUTH_STORAGE_PREFIX, clearStoredSession, secureAuthStorage } from './session-store'
+
+/**
+ * Set by `signInWithEmail` when the server answers a password sign-in with a
+ * `twoFactorRedirect` challenge, so the sign-in screen knows to show the code step.
+ * Cleared once the challenge is resolved (or a fresh sign-in starts).
+ */
+let twoFactorChallengePending = false
+export function isTwoFactorChallengePending(): boolean {
+  return twoFactorChallengePending
+}
+export function setTwoFactorChallengePending(value: boolean): void {
+  twoFactorChallengePending = value
+}
 
 /**
  * Better Auth Expo client (ADR 0003).
@@ -26,6 +40,13 @@ export const authClient = createAuthClient({
       scheme: AUTH_SCHEME,
       storagePrefix: AUTH_STORAGE_PREFIX,
       storage: secureAuthStorage,
+    }),
+    // 2FA (Sprint 8). A password sign-in for a 2FA account returns a challenge
+    // instead of a session; the sign-in screen renders the code step.
+    twoFactorClient({
+      onTwoFactorRedirect: () => {
+        setTwoFactorChallengePending(true)
+      },
     }),
   ],
 })

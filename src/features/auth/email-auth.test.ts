@@ -1,10 +1,15 @@
 import { authClient } from './auth-client'
 import { signInWithEmail, signUpWithEmail } from './email-auth'
 
+const mockChallenge = { pending: false }
 jest.mock('./auth-client', () => ({
   authClient: {
     signIn: { email: jest.fn() },
     signUp: { email: jest.fn() },
+  },
+  isTwoFactorChallengePending: () => mockChallenge.pending,
+  setTwoFactorChallengePending: (v: boolean) => {
+    mockChallenge.pending = v
   },
 }))
 

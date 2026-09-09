@@ -6,20 +6,58 @@ import { space } from '@revv/tokens'
 import { AppText, Button, Field } from '@/ui'
 import { signInWithEmail } from '@/features/auth/email-auth'
 import { SocialButtons } from '@/features/auth/SocialButtons'
-import { useAuthAction } from '@/features/auth/use-auth-actions'
+import { TwoFactorChallenge } from '@/features/security/TwoFactorChallenge'
 
 export default function SignInScreen() {
   const router = useRouter()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const { pending, error, run } = useAuthAction()
+  const [pending, setPending] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [challenge, setChallenge] = useState(false)
+
+  const toGarage = () => {
+    router.replace('/garage')
+  }
 
   const submit = () => {
-    void run(
-      () => signInWithEmail({ email: email.trim(), password }),
-      () => {
-        router.replace('/garage')
-      },
+    setPending(true)
+    setError(null)
+    void (async () => {
+      try {
+        const result = await signInWithEmail({ email: email.trim(), password })
+        if (result.ok && 'twoFactorRequired' in result) {
+          setChallenge(true)
+        } else if (result.ok) {
+          toGarage()
+        } else {
+          setError(result.message)
+        }
+      } catch {
+        setError("We couldn't reach the server. Check your connection and try again.")
+      } finally {
+        setPending(false)
+      }
+    })()
+  }
+
+  if (challenge) {
+    return (
+      <KeyboardAvoidingView
+        style={styles.flex}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <TwoFactorChallenge onVerified={toGarage} />
+          <Button
+            label="Back to sign in"
+            variant="text"
+            onPress={() => {
+              setChallenge(false)
+            }}
+          />
+        </ScrollView>
+      </KeyboardAvoidingView>
     )
   }
 

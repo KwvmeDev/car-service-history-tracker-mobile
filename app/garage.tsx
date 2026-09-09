@@ -4,7 +4,6 @@ import { Stack, useRouter } from 'expo-router'
 import { color, space } from '@revv/tokens'
 
 import { AppText, EmptyState, ErrorState, VehicleCardSkeleton } from '@/ui'
-import { useSignOut } from '@/features/auth/use-session'
 import { GarageSortControl } from '@/features/vehicles/GarageSortControl'
 import type { GarageSort } from '@/features/vehicles/api'
 import { loadGarageSort, saveGarageSort } from '@/features/vehicles/garage-sort'
@@ -13,7 +12,6 @@ import { useVehicles } from '@/features/vehicles/hooks'
 
 export default function GarageScreen() {
   const router = useRouter()
-  const signOut = useSignOut()
   const [sort, setSort] = useState<GarageSort>(() => loadGarageSort())
   const { data, isLoading, isError, refetch, isRefetching } = useVehicles(sort)
 
@@ -45,12 +43,14 @@ export default function GarageScreen() {
           headerRight: () => (
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel="Sign out"
-              onPress={() => void signOut()}
+              accessibilityLabel="Settings"
+              onPress={() => {
+                router.push('/settings')
+              }}
               hitSlop={8}
             >
               <AppText token="label" tone="onNavy">
-                Sign out
+                Settings
               </AppText>
             </Pressable>
           ),

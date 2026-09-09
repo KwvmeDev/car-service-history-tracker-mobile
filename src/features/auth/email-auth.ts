@@ -1,4 +1,4 @@
-import { authClient } from './auth-client'
+import { authClient, isTwoFactorChallengePending, setTwoFactorChallengePending } from './auth-client'
 
 /**
  * Email + password auth (ADR 0003). Thin wrappers over the Better Auth client that
@@ -9,6 +9,9 @@ import { authClient } from './auth-client'
 export type AuthResult =
   | { ok: true }
   | { ok: false; message: string; code: string }
+
+/** Sign-in can also land on a 2FA challenge (Sprint 8) before a session exists. */
+export type SignInResult = AuthResult | { ok: true; twoFactorRequired: true }
 
 interface BetterAuthError {
   code?: string
@@ -50,11 +53,15 @@ export async function signUpWithEmail(input: {
 export async function signInWithEmail(input: {
   email: string
   password: string
-}): Promise<AuthResult> {
+}): Promise<SignInResult> {
+  setTwoFactorChallengePending(false)
   const { error } = await authClient.signIn.email({
     email: input.email,
     password: input.password,
   })
+  if (!error && isTwoFactorChallengePending()) {
+    return { ok: true, twoFactorRequired: true }
+  }
   return toResult(error)
 }
 
