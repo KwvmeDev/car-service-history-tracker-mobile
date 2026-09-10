@@ -24,7 +24,7 @@ export interface ButtonProps extends Omit<PressableProps, 'style' | 'children'> 
 
 /**
  * open-design.ai-DESIGN.md §4: every button is a pill (`radius.full`). Primary is a
- * navy fill with a soft shadow and a lift on press; secondary is a light fill with a
+ * blue fill with a soft shadow and a lift on press; secondary is a light fill with a
  * hairline border; text is bare. One primary per screen (design-system.md §Simplicity).
  */
 export function Button({
@@ -73,13 +73,13 @@ export function Button({
           {loading ? (
             <ActivityIndicator
               size="small"
-              color={variant === 'primary' ? color.white : color.navy}
+              color={variant === 'primary' ? color.white : color.blue}
             />
           ) : (
             <AppText
               token="body"
               weight={variant === 'primary' ? 'bold' : 'semibold'}
-              tone={variant === 'primary' ? 'onNavy' : 'primary'}
+              tone={variant === 'primary' ? 'onBlue' : 'primary'}
             >
               {label}
             </AppText>
@@ -91,7 +91,7 @@ export function Button({
 }
 
 const VARIANT_STYLE = StyleSheet.create({
-  primary: { backgroundColor: color.navy, minHeight: 52 },
+  primary: { backgroundColor: color.blue, minHeight: 52 },
   secondary: {
     borderWidth: borderWidth.thin,
     borderColor: color.hairline,

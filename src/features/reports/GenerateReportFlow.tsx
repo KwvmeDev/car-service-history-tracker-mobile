@@ -119,10 +119,10 @@ export function GenerateReportFlow({
       <View style={styles.screen}>
         {failed ? (
           <View style={styles.center}>
-            <AppText token="title" tone="onNavy">
+            <AppText token="title" tone="onBlue">
               That didn&rsquo;t generate
             </AppText>
-            <AppText token="body" tone="onNavySubtle" style={styles.centerText}>
+            <AppText token="body" tone="onBlueSubtle" style={styles.centerText}>
               Something went wrong building the report. Nothing was shared.
             </AppText>
             <View style={styles.actions}>
@@ -146,7 +146,7 @@ export function GenerateReportFlow({
           </View>
         ) : !done ? (
           <View style={styles.center}>
-            <AppText token="label" tone="onNavySubtle">
+            <AppText token="label" tone="onBlueSubtle">
               Composing the record
             </AppText>
             <View style={styles.doc}>
@@ -174,22 +174,22 @@ export function GenerateReportFlow({
                 )
               })}
             </View>
-            <AppText token="title" tone="onNavy" style={styles.printingTitle}>
+            <AppText token="title" tone="onBlue" style={styles.printingTitle}>
               {vehicleTitle}
             </AppText>
           </View>
         ) : (
           <Animated.View style={[styles.ready, { opacity: settle }]}>
-            <AppText token="display" tone="onNavy">
+            <AppText token="display" tone="onBlue">
               Report ready
             </AppText>
-            <AppText token="body" tone="onNavySubtle" style={styles.readyLead}>
+            <AppText token="body" tone="onBlueSubtle" style={styles.readyLead}>
               {vehicleTitle}&rsquo;s history is a shareable document. Send the link; you can revoke
               it any time.
             </AppText>
 
             <View style={styles.linkBox}>
-              <AppText token="mono" tone="onNavySubtle" numberOfLines={1}>
+              <AppText token="mono" tone="onBlueSubtle" numberOfLines={1}>
                 {result.shareUrl.replace(/^https?:\/\//, '')}
               </AppText>
             </View>
@@ -200,13 +200,13 @@ export function GenerateReportFlow({
               {pdf === 'ready' ? (
                 <Button label="Download PDF" variant="secondary" block onPress={openPdf} />
               ) : pdf === 'failed' ? (
-                <AppText token="label" tone="onNavySubtle">
+                <AppText token="label" tone="onBlueSubtle">
                   PDF unavailable — the link still works.
                 </AppText>
               ) : (
                 <View style={styles.pdfPending}>
-                  <ActivityIndicator size="small" color={color.navySubtle} />
-                  <AppText token="label" tone="onNavySubtle">
+                  <ActivityIndicator size="small" color={color.blueSubtle} />
+                  <AppText token="label" tone="onBlueSubtle">
                     Preparing the PDF…
                   </AppText>
                 </View>
@@ -222,7 +222,7 @@ export function GenerateReportFlow({
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: color.navy, padding: space.xl, justifyContent: 'center' },
+  screen: { flex: 1, backgroundColor: color.blue, padding: space.xl, justifyContent: 'center' },
   center: { alignItems: 'center', gap: space.md },
   centerText: { textAlign: 'center' },
   actions: { gap: space.sm, alignSelf: 'stretch', marginTop: space.md },
@@ -240,7 +240,7 @@ const styles = StyleSheet.create({
   readyLead: { marginBottom: space.sm },
   linkBox: {
     borderWidth: StyleSheet.hairlineWidth,
-    borderColor: color.navySubtle,
+    borderColor: color.blueSubtle,
     borderRadius: radius.xs,
     paddingHorizontal: space.md,
     paddingVertical: space.sm,

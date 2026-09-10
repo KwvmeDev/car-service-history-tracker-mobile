@@ -67,7 +67,7 @@ export function SettingsToggle({
           value={value}
           onValueChange={onValueChange}
           disabled={disabled}
-          trackColor={{ true: color.navy, false: color.navySubtle }}
+          trackColor={{ true: color.blue, false: color.blueSubtle }}
           accessibilityLabel={label}
         />
       }

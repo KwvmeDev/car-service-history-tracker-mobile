@@ -14,7 +14,7 @@ export default function Index() {
   if (status === 'loading') {
     return (
       <View style={styles.center}>
-        <ActivityIndicator color={color.navy} />
+        <ActivityIndicator color={color.blue} />
       </View>
     )
   }

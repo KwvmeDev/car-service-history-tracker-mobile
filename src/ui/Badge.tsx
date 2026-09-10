@@ -24,7 +24,7 @@ export function Badge({ label, status = 'neutral' }: BadgeProps) {
       <AppText
         token="caption"
         weight="medium"
-        tone={status === 'overdue' ? 'onNavy' : status === 'due' ? 'attention' : 'secondary'}
+        tone={status === 'overdue' ? 'onBlue' : status === 'due' ? 'attention' : 'secondary'}
       >
         {label}
       </AppText>

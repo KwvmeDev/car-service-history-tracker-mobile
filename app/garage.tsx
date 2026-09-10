@@ -49,7 +49,7 @@ export default function GarageScreen() {
               }}
               hitSlop={8}
             >
-              <AppText token="label" tone="onNavy">
+              <AppText token="label" tone="onBlue">
                 Settings
               </AppText>
             </Pressable>
@@ -84,7 +84,7 @@ export default function GarageScreen() {
             <RefreshControl
               refreshing={isRefetching}
               onRefresh={() => void refetch()}
-              tintColor={color.navy}
+              tintColor={color.blue}
             />
           }
         >

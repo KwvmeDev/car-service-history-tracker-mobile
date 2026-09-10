@@ -27,22 +27,22 @@ export function VehicleCard({
 
   return (
     <Card
-      surface="navy"
+      surface="blue"
       onPress={onPress}
       accessibilityLabel={`Open ${title}`}
       nativeID={`vehicle-card-${vehicle.id}`}
     >
       <View style={styles.topRow}>
         <View style={styles.identity}>
-          <AppText token="title" tone="onNavy" numberOfLines={1}>
+          <AppText token="title" tone="onBlue" numberOfLines={1}>
             {title}
           </AppText>
           {vehicle.vin != null ? (
-            <AppText token="mono" tone="onNavySubtle" numberOfLines={1}>
+            <AppText token="mono" tone="onBlueSubtle" numberOfLines={1}>
               {vehicle.vin}
             </AppText>
           ) : (
-            <AppText token="caption" tone="onNavySubtle">
+            <AppText token="caption" tone="onBlueSubtle">
               No VIN yet
             </AppText>
           )}

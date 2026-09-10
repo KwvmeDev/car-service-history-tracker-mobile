@@ -170,7 +170,7 @@ export function LogServiceSheet({ vehicleId, visible, onDismiss, record }: LogSe
                   }}
                   style={[styles.chip, opt.key === typeKey ? styles.chipActive : undefined]}
                 >
-                  <AppText token="label" tone={opt.key === typeKey ? 'onNavy' : 'primary'}>
+                  <AppText token="label" tone={opt.key === typeKey ? 'onBlue' : 'primary'}>
                     {opt.label}
                   </AppText>
                 </Pressable>
@@ -235,5 +235,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.sm,
     paddingVertical: space.xs,
   },
-  chipActive: { backgroundColor: color.navy, borderColor: color.navy },
+  chipActive: { backgroundColor: color.blue, borderColor: color.blue },
 })

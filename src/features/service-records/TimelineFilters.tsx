@@ -44,7 +44,7 @@ function Chip({ label, active, onPress }: ChipProps) {
   return (
     <AppText
       token="label"
-      tone={active ? 'onNavy' : 'secondary'}
+      tone={active ? 'onBlue' : 'secondary'}
       accessibilityRole="button"
       accessibilityState={{ selected: active }}
       onPress={onPress}
@@ -144,5 +144,5 @@ const styles = StyleSheet.create({
     borderColor: color.hairline,
     overflow: 'hidden',
   },
-  chipActive: { backgroundColor: color.navy, borderColor: color.navy },
+  chipActive: { backgroundColor: color.blue, borderColor: color.blue },
 })

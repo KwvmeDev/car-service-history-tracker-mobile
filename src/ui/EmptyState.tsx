@@ -69,6 +69,6 @@ export function EmptyState({ glyph, title, body, actionLabel, onAction }: EmptyS
 
 const styles = StyleSheet.create({
   wrap: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: space.sm, padding: space.xl },
-  glyph: { fontSize: 44, color: color.navy },
+  glyph: { fontSize: 44, color: color.blue },
   body: { textAlign: 'center', maxWidth: 280 },
 })

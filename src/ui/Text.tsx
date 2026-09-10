@@ -3,13 +3,13 @@ import { color, type TextToken } from '@revv/tokens'
 
 import { textStyle, type TextWeightName } from './typography'
 
-type ToneName = 'primary' | 'secondary' | 'onNavy' | 'onNavySubtle' | 'attention'
+type ToneName = 'primary' | 'secondary' | 'onBlue' | 'onBlueSubtle' | 'attention'
 
 const TONE: Record<ToneName, string> = {
   primary: color.ink,
   secondary: color.ink,
-  onNavy: color.white,
-  onNavySubtle: color.navySubtle,
+  onBlue: color.white,
+  onBlueSubtle: color.blueSubtle,
   attention: color.amber,
 }
 

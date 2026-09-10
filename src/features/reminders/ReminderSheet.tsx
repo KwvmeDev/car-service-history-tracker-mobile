@@ -87,7 +87,7 @@ export function ReminderSheet({ vehicleId, visible, onDismiss, reminder }: Remin
                     }}
                     style={[styles.chip, active ? styles.chipActive : undefined]}
                   >
-                    <AppText token="label" tone={active ? 'onNavy' : 'primary'}>
+                    <AppText token="label" tone={active ? 'onBlue' : 'primary'}>
                       {opt.label}
                     </AppText>
                   </Pressable>
@@ -165,6 +165,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.sm,
     paddingVertical: space.xs,
   },
-  chipActive: { backgroundColor: color.navy, borderColor: color.navy },
+  chipActive: { backgroundColor: color.blue, borderColor: color.blue },
   editActions: { flexDirection: 'row', gap: space.sm, alignItems: 'center' },
 })

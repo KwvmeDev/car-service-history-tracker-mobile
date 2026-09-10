@@ -96,7 +96,7 @@ const styles = StyleSheet.create({
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: color.navy,
+    backgroundColor: color.blue,
     marginTop: space.xxs,
   },
   line: { flex: 1, width: 1, backgroundColor: color.hairline, marginTop: space.xxs },

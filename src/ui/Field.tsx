@@ -16,7 +16,7 @@ export interface FieldProps extends Omit<TextInputProps, 'style'> {
 /**
  * A labelled text input. One field per concept, stacked with generous space — never a
  * dense grid (design-system.md §Simplicity). Inputs use `radius.xs`; the border goes
- * navy on focus (open-design.ai-DESIGN.md §states). Errors are inline, not a toast.
+ * blue on focus (open-design.ai-DESIGN.md §states). Errors are inline, not a toast.
  */
 export function Field({ label, error, data = false, testID, onFocus, onBlur, ...input }: FieldProps) {
   const [focused, setFocused] = useState(false)
@@ -71,6 +71,6 @@ const styles = StyleSheet.create({
     backgroundColor: color.white,
     minHeight: 48,
   },
-  inputActive: { borderColor: color.navy },
+  inputActive: { borderColor: color.blue },
   inputError: { borderColor: color.amber },
 })

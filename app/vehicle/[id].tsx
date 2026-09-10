@@ -101,11 +101,11 @@ export default function VehicleProfileScreen() {
       >
         <View style={styles.identityRow}>
           <View style={styles.identity}>
-            <AppText token="display" tone="onNavy">
+            <AppText token="display" tone="onBlue">
               {title}
             </AppText>
             {vehicle.vin != null ? (
-              <AppText token="mono" tone="onNavySubtle">
+              <AppText token="mono" tone="onBlueSubtle">
                 {vehicle.vin}
               </AppText>
             ) : null}
@@ -121,7 +121,7 @@ export default function VehicleProfileScreen() {
         </View>
 
         {vehicle.year != null || vehicle.make != null ? (
-          <AppText token="body" tone="onNavySubtle">
+          <AppText token="body" tone="onBlueSubtle">
             {[vehicle.year, vehicle.make, vehicle.model, vehicle.trim].filter(Boolean).join(' ')}
           </AppText>
         ) : null}
@@ -130,15 +130,15 @@ export default function VehicleProfileScreen() {
 
         <View style={styles.statsRow}>
           <View style={styles.stat}>
-            <CountUp value={vehicle.currentMileage ?? 0} tone="onNavy" />
-            <AppText token="caption" tone="onNavySubtle">
+            <CountUp value={vehicle.currentMileage ?? 0} tone="onBlue" />
+            <AppText token="caption" tone="onBlueSubtle">
               Mileage{vehicle.mileageUnit === 'km' ? ' (km)' : ''}
             </AppText>
           </View>
           <View style={styles.rule} />
           <View style={styles.stat}>
-            <CountUp value={recordCount} tone="onNavy" />
-            <AppText token="caption" tone="onNavySubtle">
+            <CountUp value={recordCount} tone="onBlue" />
+            <AppText token="caption" tone="onBlueSubtle">
               Records
             </AppText>
           </View>
@@ -297,7 +297,7 @@ export default function VehicleProfileScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.white },
   content: { padding: space.md, gap: space.md },
-  header: { backgroundColor: color.navy, borderRadius: radius.md, padding: space.md, gap: space.sm },
+  header: { backgroundColor: color.blue, borderRadius: radius.md, padding: space.md, gap: space.sm },
   headerSkeleton: {
     backgroundColor: color.white,
     borderWidth: StyleSheet.hairlineWidth,

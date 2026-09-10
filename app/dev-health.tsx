@@ -14,7 +14,7 @@ export default function HealthScreen() {
   if (health.phase === 'loading') {
     return (
       <View style={[styles.screen, styles.center]}>
-        <ActivityIndicator color={color.navy} />
+        <ActivityIndicator color={color.blue} />
         <Text style={styles.label}>Checking the api</Text>
       </View>
     )
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: color.white, padding: space.xl },
   center: { alignItems: 'center', justifyContent: 'center', gap: space.sm },
   card: {
-    backgroundColor: color.navy,
+    backgroundColor: color.blue,
     borderRadius: radius.md,
     padding: space.xl,
     gap: space.xs,
@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     borderTopWidth: StyleSheet.hairlineWidth,
     borderTopColor: color.hairline,
   },
-  label: { color: color.navySubtle, ...textStyle('label') },
+  label: { color: color.blueSubtle, ...textStyle('label') },
   value: { color: color.white, ...textStyle('mono') },
   notice: {
     marginTop: space.sm,

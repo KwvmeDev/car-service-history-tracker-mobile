@@ -18,7 +18,7 @@ export interface GarageSortControlProps {
 
 /**
  * A small segmented control for the garage order (Sprint 8). Sentence case, no
- * ALL CAPS (design-system.md); the active segment is a navy fill.
+ * ALL CAPS (design-system.md); the active segment is a blue fill.
  */
 export function GarageSortControl({ value, onChange }: GarageSortControlProps) {
   return (
@@ -37,7 +37,7 @@ export function GarageSortControl({ value, onChange }: GarageSortControlProps) {
             style={[styles.segment, active && styles.segmentActive]}
             hitSlop={6}
           >
-            <AppText token="label" tone={active ? 'onNavy' : 'secondary'}>
+            <AppText token="label" tone={active ? 'onBlue' : 'secondary'}>
               {option.label}
             </AppText>
           </Pressable>
@@ -62,5 +62,5 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.sm,
     borderRadius: radius.full,
   },
-  segmentActive: { backgroundColor: color.navy },
+  segmentActive: { backgroundColor: color.blue },
 })

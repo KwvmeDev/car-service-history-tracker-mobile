@@ -53,7 +53,7 @@ function AuthGate() {
   return (
     <Stack
       screenOptions={{
-        headerStyle: { backgroundColor: color.navy },
+        headerStyle: { backgroundColor: color.blue },
         headerTintColor: color.white,
         headerTitleStyle: {
           fontSize: text.title.fontSize,

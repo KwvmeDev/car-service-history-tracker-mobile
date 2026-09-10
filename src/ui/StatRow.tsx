@@ -12,26 +12,26 @@ export interface Stat {
 
 export interface StatRowProps {
   stats: Stat[]
-  /** navy card context (default) or a white surface. */
-  surface?: 'navy' | 'white'
+  /** blue card context (default) or a white surface. */
+  surface?: 'blue' | 'white'
 }
 
 /**
  * design-system.md §Core components — the stats row under a card's hairline divider:
  * a mono value over a caption label, evenly spread, thin vertical rules between.
  */
-export function StatRow({ stats, surface = 'navy' }: StatRowProps) {
-  const onNavy = surface === 'navy'
+export function StatRow({ stats, surface = 'blue' }: StatRowProps) {
+  const onBlue = surface === 'blue'
   return (
     <View style={styles.row}>
       {stats.map((stat, i) => (
         <Fragment key={stat.label}>
           {i > 0 ? <View style={styles.rule} /> : null}
           <View style={styles.cell}>
-            <AppText token="mono" tone={onNavy ? 'onNavy' : 'primary'}>
+            <AppText token="mono" tone={onBlue ? 'onBlue' : 'primary'}>
               {stat.value}
             </AppText>
-            <AppText token="caption" tone={onNavy ? 'onNavySubtle' : 'secondary'}>
+            <AppText token="caption" tone={onBlue ? 'onBlueSubtle' : 'secondary'}>
               {stat.label}
             </AppText>
           </View>
