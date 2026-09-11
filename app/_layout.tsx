@@ -26,7 +26,10 @@ configureReminderNotifications()
 // in memory so the app never paints a fallback-font frame (docs/design-system.md §Typography).
 void SplashScreen.preventAutoHideAsync()
 
-const AUTH_ROUTES = new Set(['sign-in', 'sign-up', 'verify-email'])
+// Routes reachable with no session — includes onboarding (pre-auth by definition;
+// without this the redirect effect below would bounce an unauthenticated,
+// never-onboarded user straight out of the onboarding carousel and into sign-in).
+const AUTH_ROUTES = new Set(['sign-in', 'sign-up', 'verify-email', 'onboarding'])
 
 /**
  * Redirects between the auth routes and the app depending on the session (ADR 0003).
@@ -65,6 +68,7 @@ function AuthGate() {
       }}
     >
       <Stack.Screen name="index" options={{ headerShown: false }} />
+      <Stack.Screen name="onboarding/[step]" options={{ headerShown: false }} />
       <Stack.Screen name="sign-in" options={{ headerShown: false }} />
       <Stack.Screen name="sign-up" options={{ title: 'Create your account' }} />
       <Stack.Screen name="verify-email" options={{ title: 'Verify your email' }} />

@@ -1,4 +1,5 @@
-import { Easing } from 'react-native'
+import { useEffect, useState } from 'react'
+import { AccessibilityInfo, Easing } from 'react-native'
 import { dur, ease } from '@revv/tokens'
 
 /**
@@ -41,3 +42,30 @@ export const durMorph = dur.morph
 export const enterTiming = { duration: durEnter, easing: easeEnter, useNativeDriver: true } as const
 export const exitTiming = { duration: 220, easing: easeExit, useNativeDriver: true } as const
 export const microTiming = { duration: durMicro, easing: easeMicro, useNativeDriver: true } as const
+
+/**
+ * React Native's counterpart to the web app's `prefers-reduced-motion` gate
+ * (design-system.md §Motion) — nothing on mobile checked this before the
+ * onboarding / loading-screen work. `AccessibilityInfo` has no synchronous
+ * read, so this starts `false` and corrects itself a tick after mount; fine
+ * for anything longer than a flash, which is the only case this app animates.
+ */
+export function useReducedMotion(): boolean {
+  const [reduced, setReduced] = useState(false)
+
+  useEffect(() => {
+    let mounted = true
+    AccessibilityInfo.isReduceMotionEnabled()
+      .then((value) => {
+        if (mounted) setReduced(value)
+      })
+      .catch(() => undefined)
+    const subscription = AccessibilityInfo.addEventListener('reduceMotionChanged', setReduced)
+    return () => {
+      mounted = false
+      subscription.remove()
+    }
+  }, [])
+
+  return reduced
+}
