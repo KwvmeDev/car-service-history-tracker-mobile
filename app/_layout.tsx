@@ -1,3 +1,9 @@
+// MUST be the first import in the app: polyfills crypto.getRandomValues, which
+// Hermes doesn't provide and uuid's v7() (src/data/ids.ts, every client-minted
+// id — ADR 0004) needs. Anything importing uuid before this runs throws
+// "crypto.getRandomValues() not supported".
+import 'react-native-get-random-values'
+
 import { useEffect } from 'react'
 import { View } from 'react-native'
 import {
