@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, type ReactNode } from 'react'
 import {
   ActivityIndicator,
   Animated,
@@ -20,6 +20,8 @@ export interface ButtonProps extends Omit<PressableProps, 'style' | 'children'> 
   loading?: boolean
   /** Fill the available width. Primary CTAs usually do. */
   block?: boolean
+  /** A provider mark or similar, shown before the label. Hidden while loading. */
+  icon?: ReactNode
 }
 
 /**
@@ -32,6 +34,7 @@ export function Button({
   variant = 'primary',
   loading = false,
   block = false,
+  icon,
   disabled,
   ...rest
 }: ButtonProps) {
@@ -76,13 +79,16 @@ export function Button({
               color={variant === 'primary' ? color.white : color.blue}
             />
           ) : (
-            <AppText
-              token="body"
-              weight={variant === 'primary' ? 'bold' : 'semibold'}
-              tone={variant === 'primary' ? 'onBlue' : 'primary'}
-            >
-              {label}
-            </AppText>
+            <>
+              {icon}
+              <AppText
+                token="body"
+                weight={variant === 'primary' ? 'bold' : 'semibold'}
+                tone={variant === 'primary' ? 'onBlue' : 'primary'}
+              >
+                {label}
+              </AppText>
+            </>
           )}
         </View>
       </Pressable>
