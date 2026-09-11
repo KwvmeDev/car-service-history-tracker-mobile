@@ -20,7 +20,13 @@ export function useAuthAction() {
       } else {
         setError(result.message)
       }
-    } catch {
+    } catch (err) {
+      // The user-facing copy is deliberately generic (no toasts, one message,
+      // design-system.md), but that means it swallows the real cause — log it so
+      // it's still visible in the Metro console while debugging.
+      if (__DEV__) {
+        console.error('[useAuthAction] action threw', err)
+      }
       setError("We couldn't reach the server. Check your connection and try again.")
     } finally {
       setPending(false)
