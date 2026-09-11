@@ -19,7 +19,12 @@
       "expo-secure-store",
       "expo-apple-authentication",
       "expo-font",
-      "@react-native-google-signin/google-signin",
+      [
+        "@react-native-google-signin/google-signin",
+        {
+          "iosUrlScheme": "com.googleusercontent.apps.966447608895-f3sd8lo8sq70ervr1e5g76k1rdr29eq4"
+        }
+      ],
       [
         "expo-image-picker",
         {
@@ -38,7 +43,9 @@
       "typedRoutes": true
     },
     "extra": {
-      "apiBaseUrl": "http://localhost:3000"
+      "apiBaseUrl": "http://localhost:3000",
+      "googleWebClientId": "966447608895-qte3ugdo0o4akf8if47nbfgs19vqkkes.apps.googleusercontent.com",
+      "googleIosClientId": "966447608895-f3sd8lo8sq70ervr1e5g76k1rdr29eq4.apps.googleusercontent.com"
     }
   }
 }
