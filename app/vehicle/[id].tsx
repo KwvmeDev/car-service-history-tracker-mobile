@@ -1,5 +1,5 @@
 import { useMemo, useRef, useState } from 'react'
-import { Animated, ScrollView, StyleSheet, View } from 'react-native'
+import { Animated, Image, ScrollView, StyleSheet, View } from 'react-native'
 import { Stack, useLocalSearchParams } from 'expo-router'
 import { color, radius, space } from '@revv/tokens'
 
@@ -100,6 +100,9 @@ export default function VehicleProfileScreen() {
         ]}
       >
         <View style={styles.identityRow}>
+          {vehicle.photoUrl != null ? (
+            <Image source={{ uri: vehicle.photoUrl }} style={styles.photo} />
+          ) : null}
           <View style={styles.identity}>
             <AppText token="display" tone="onBlue">
               {title}
@@ -308,6 +311,7 @@ const styles = StyleSheet.create({
     margin: space.md,
   },
   identityRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: space.xs },
+  photo: { width: 56, height: 56, borderRadius: radius.sm, backgroundColor: 'rgba(255,255,255,0.15)' },
   identity: { flex: 1, gap: space.xxs },
   divider: { height: StyleSheet.hairlineWidth, backgroundColor: color.hairline },
   statsRow: { flexDirection: 'row', alignItems: 'flex-start' },

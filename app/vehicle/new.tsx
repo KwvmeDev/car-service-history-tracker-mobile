@@ -1,59 +1,125 @@
 import { useMemo, useState } from 'react'
-import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from 'react-native'
+import { Alert, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { useRouter } from 'expo-router'
-import { space } from '@revv/tokens'
+import * as ImagePicker from 'expo-image-picker'
+import { color, radius, space } from '@revv/tokens'
 
 import { AppText, Button, Card, Field } from '@/ui'
 import { newId } from '@/data/ids'
+import { uploadVehiclePhoto } from '@/features/vehicles/cloudinary'
 import { useCreateVehicle, useDecodeVin } from '@/features/vehicles/hooks'
 import { VinReveal } from '@/features/vehicles/VinReveal'
 import type { Vehicle } from '@/features/vehicles/types'
 
 const VIN_LENGTH = 17
+const PHOTO_SIZE = 148
 
 type Phase =
   | { step: 'form' }
   | { step: 'decoding'; id: string }
   | { step: 'decoded'; vehicle: Vehicle; decoded: boolean }
 
+interface PickedPhoto {
+  uri: string
+  mimeType: string
+}
+
 export default function AddVehicleScreen() {
   const router = useRouter()
   const [id] = useState(newId)
   const [vin, setVin] = useState('')
   const [nickname, setNickname] = useState('')
+  const [photo, setPhoto] = useState<PickedPhoto | null>(null)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [phase, setPhase] = useState<Phase>({ step: 'form' })
 
   const create = useCreateVehicle()
   const decode = useDecodeVin(id)
 
   const vinReady = vin.length === 0 || vin.length === VIN_LENGTH
-  const canSubmit = vinReady && phase.step === 'form' && !create.isPending
+  const canSubmit = vinReady && phase.step === 'form' && !create.isPending && !uploadingPhoto
 
-  const submit = () => {
-    create.mutate(
+  const pickPhoto = (source: 'camera' | 'library') => {
+    void (async () => {
+      const permission =
+        source === 'camera'
+          ? await ImagePicker.requestCameraPermissionsAsync()
+          : await ImagePicker.requestMediaLibraryPermissionsAsync()
+      if (!permission.granted) return
+
+      const result =
+        source === 'camera'
+          ? await ImagePicker.launchCameraAsync({ quality: 0.8, exif: false })
+          : await ImagePicker.launchImageLibraryAsync({
+              mediaTypes: ['images'],
+              quality: 0.8,
+              exif: false,
+            })
+      if (result.canceled || result.assets.length === 0) return
+      const asset = result.assets[0]
+      if (!asset) return
+      setPhoto({ uri: asset.uri, mimeType: asset.mimeType ?? 'image/jpeg' })
+    })()
+  }
+
+  const choosePhoto = () => {
+    Alert.alert('Add a photo', undefined, [
       {
-        id,
-        vin: vin.length === VIN_LENGTH ? vin.toUpperCase() : null,
-        nickname: nickname.trim().length > 0 ? nickname.trim() : null,
-      },
-      {
-        onSuccess: (vehicle) => {
-          if (vehicle.vin == null) {
-            router.replace({ pathname: '/vehicle/[id]', params: { id: vehicle.id } })
-            return
-          }
-          setPhase({ step: 'decoding', id: vehicle.id })
-          decode.mutate(undefined, {
-            onSuccess: (res) => {
-              setPhase({ step: 'decoded', vehicle: res.vehicle, decoded: res.decoded })
-            },
-            onError: () => {
-              router.replace({ pathname: '/vehicle/[id]', params: { id: vehicle.id } })
-            },
-          })
+        text: 'Take a photo',
+        onPress: () => {
+          pickPhoto('camera')
         },
       },
-    )
+      {
+        text: 'Choose from library',
+        onPress: () => {
+          pickPhoto('library')
+        },
+      },
+      { text: 'Cancel', style: 'cancel' },
+    ])
+  }
+
+  const submit = () => {
+    void (async () => {
+      let photoUrl: string | null = null
+      if (photo) {
+        setUploadingPhoto(true)
+        try {
+          photoUrl = await uploadVehiclePhoto(photo.uri, photo.mimeType)
+        } catch {
+          // Optional field — the vehicle is still worth creating without its photo.
+        } finally {
+          setUploadingPhoto(false)
+        }
+      }
+
+      create.mutate(
+        {
+          id,
+          vin: vin.length === VIN_LENGTH ? vin.toUpperCase() : null,
+          nickname: nickname.trim().length > 0 ? nickname.trim() : null,
+          photoUrl,
+        },
+        {
+          onSuccess: (vehicle) => {
+            if (vehicle.vin == null) {
+              router.replace({ pathname: '/vehicle/[id]', params: { id: vehicle.id } })
+              return
+            }
+            setPhase({ step: 'decoding', id: vehicle.id })
+            decode.mutate(undefined, {
+              onSuccess: (res) => {
+                setPhase({ step: 'decoded', vehicle: res.vehicle, decoded: res.decoded })
+              },
+              onError: () => {
+                router.replace({ pathname: '/vehicle/[id]', params: { id: vehicle.id } })
+              },
+            })
+          },
+        },
+      )
+    })()
   }
 
   const revealFields = useMemo(() => {
@@ -76,6 +142,25 @@ export default function AddVehicleScreen() {
               Add the VIN and we'll fill in the year, make and model. You can skip it and
               add details yourself.
             </AppText>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={photo ? 'Change vehicle photo' : 'Add a vehicle photo'}
+              onPress={choosePhoto}
+              style={styles.photoPicker}
+            >
+              {photo ? (
+                <Image source={{ uri: photo.uri }} style={styles.photoPreview} />
+              ) : (
+                <View style={styles.photoPlaceholder}>
+                  <AppText token="title" tone="secondary">
+                    +
+                  </AppText>
+                  <AppText token="caption" tone="secondary">
+                    Add a photo
+                  </AppText>
+                </View>
+              )}
+            </Pressable>
             <Field
               label="VIN"
               value={vin}
@@ -93,7 +178,13 @@ export default function AddVehicleScreen() {
                 We couldn't save that. Check your connection and try again.
               </AppText>
             ) : null}
-            <Button label="Add vehicle" block loading={create.isPending} disabled={!canSubmit} onPress={submit} />
+            <Button
+              label="Add vehicle"
+              block
+              loading={create.isPending || uploadingPhoto}
+              disabled={!canSubmit}
+              onPress={submit}
+            />
           </>
         ) : null}
 
@@ -141,4 +232,17 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   content: { padding: space.xl, gap: space.md, flexGrow: 1 },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  photoPicker: { alignSelf: 'center' },
+  photoPreview: { width: PHOTO_SIZE, height: PHOTO_SIZE, borderRadius: radius.md },
+  photoPlaceholder: {
+    width: PHOTO_SIZE,
+    height: PHOTO_SIZE,
+    borderRadius: radius.md,
+    borderWidth: 1,
+    borderColor: color.hairline,
+    backgroundColor: color.white,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: space.xxs,
+  },
 })

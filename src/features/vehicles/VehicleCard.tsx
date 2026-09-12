@@ -1,5 +1,5 @@
-import { StyleSheet, View } from 'react-native'
-import { color, space } from '@revv/tokens'
+import { Image, StyleSheet, View } from 'react-native'
+import { color, radius, space } from '@revv/tokens'
 
 import { AppText, Badge, Card, StatRow } from '@/ui'
 import { isPending, type WithPending } from '@/data/pending'
@@ -33,6 +33,9 @@ export function VehicleCard({
       nativeID={`vehicle-card-${vehicle.id}`}
     >
       <View style={styles.topRow}>
+        {vehicle.photoUrl != null ? (
+          <Image source={{ uri: vehicle.photoUrl }} style={styles.photo} />
+        ) : null}
         <View style={styles.identity}>
           <AppText token="title" tone="onBlue" numberOfLines={1}>
             {title}
@@ -78,6 +81,7 @@ export function VehicleCard({
 
 const styles = StyleSheet.create({
   topRow: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', gap: space.xs },
+  photo: { width: 44, height: 44, borderRadius: radius.sm },
   identity: { flex: 1, gap: space.xxs },
   divider: { height: StyleSheet.hairlineWidth, backgroundColor: color.hairline },
 })
