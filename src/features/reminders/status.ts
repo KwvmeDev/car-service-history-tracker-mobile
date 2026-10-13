@@ -12,11 +12,18 @@
  * month/day arithmetic especially.
  */
 
+const KM_PER_MILE = 1.609344
+
 /** A reminder within this many miles of due reads as "due soon" (amber). */
 export const DUE_SOON_MILES = 500
+/** The same real-world distance as `DUE_SOON_MILES`, for a vehicle tracked in km —
+ *  the threshold must scale with the unit or a km vehicle's "due soon" window is
+ *  the wrong width (500 raw km is a much shorter distance than 500 mi). */
+export const DUE_SOON_KM = Math.round(DUE_SOON_MILES * KM_PER_MILE)
 /** A reminder within this many days of due reads as "due soon" (amber). */
 export const DUE_SOON_DAYS = 14
 
+export type MileageUnit = 'mi' | 'km'
 export type ReminderStatusValue = 'ok' | 'due' | 'overdue'
 
 export interface ReminderStatusInput {
@@ -25,6 +32,9 @@ export interface ReminderStatusInput {
   readonly lastCompletedOn: string | null
   readonly lastCompletedMileage: number | null
   readonly currentMileage: number | null
+  /** Which unit `intervalMiles`/`currentMileage`/etc are actually counted in —
+   *  despite the field names, they hold whatever unit the vehicle tracks. */
+  readonly mileageUnit: MileageUnit
   /** Today, as `YYYY-MM-DD`. */
   readonly today: string
 }
@@ -80,6 +90,11 @@ function severity(remaining: number, threshold: number): Severity {
 
 const STATUS_BY_SEVERITY: Record<Severity, ReminderStatusValue> = { 0: 'ok', 1: 'due', 2: 'overdue' }
 
+/** The "due soon" distance threshold, scaled to the vehicle's own unit. */
+function dueSoonThreshold(unit: MileageUnit): number {
+  return unit === 'km' ? DUE_SOON_KM : DUE_SOON_MILES
+}
+
 export function computeReminderStatus(input: ReminderStatusInput): ReminderStatusResult {
   const dueMileage =
     input.intervalMiles != null && input.intervalMiles > 0 && input.lastCompletedMileage != null
@@ -97,7 +112,7 @@ export function computeReminderStatus(input: ReminderStatusInput): ReminderStatu
   const daysRemaining = dueDate != null ? wholeDaysBetween(input.today, dueDate) : null
 
   const severities: Severity[] = []
-  if (milesRemaining != null) severities.push(severity(milesRemaining, DUE_SOON_MILES))
+  if (milesRemaining != null) severities.push(severity(milesRemaining, dueSoonThreshold(input.mileageUnit)))
   if (daysRemaining != null) severities.push(severity(daysRemaining, DUE_SOON_DAYS))
 
   const worst = severities.reduce<Severity>((max, s) => (s > max ? s : max), 0)
@@ -121,6 +136,8 @@ export function computeReminderStatus(input: ReminderStatusInput): ReminderStatu
 
 /** Beyond "due" but within this many miles of due → push-worthy as `upcoming`. */
 export const UPCOMING_MILES = 1_000
+/** The same real-world distance as `UPCOMING_MILES`, for a km-tracked vehicle. */
+export const UPCOMING_KM = Math.round(UPCOMING_MILES * KM_PER_MILE)
 /** Beyond "due" but within this many days of due → push-worthy as `upcoming`. */
 export const UPCOMING_DAYS = 30
 
@@ -137,6 +154,11 @@ function pushSeverity(remaining: number, dueThreshold: number, upcomingThreshold
 
 const PUSH_KIND_BY_SEVERITY: Record<1 | 2 | 3, PushDueKind> = { 1: 'upcoming', 2: 'due', 3: 'overdue' }
 
+/** The "upcoming" distance pre-window, scaled to the vehicle's own unit. */
+function upcomingThreshold(unit: MileageUnit): number {
+  return unit === 'km' ? UPCOMING_KM : UPCOMING_MILES
+}
+
 /**
  * How push-worthy a reminder is right now, or `null` when it is not worth a push
  * yet (or has no interval at all). The nearer of the two tracks wins.
@@ -145,11 +167,20 @@ export function pushDueKind(input: ReminderStatusInput): PushDueKind | null {
   const { milesRemaining, daysRemaining } = computeReminderStatus(input)
 
   const severities: PushSeverity[] = []
-  if (milesRemaining != null) severities.push(pushSeverity(milesRemaining, DUE_SOON_MILES, UPCOMING_MILES))
+  if (milesRemaining != null) {
+    severities.push(
+      pushSeverity(milesRemaining, dueSoonThreshold(input.mileageUnit), upcomingThreshold(input.mileageUnit)),
+    )
+  }
   if (daysRemaining != null) severities.push(pushSeverity(daysRemaining, DUE_SOON_DAYS, UPCOMING_DAYS))
 
   const worst = severities.reduce<PushSeverity>((max, s) => (s > max ? s : max), 0)
   return worst === 0 ? null : PUSH_KIND_BY_SEVERITY[worst]
+}
+
+/** Sort key for "worst first" ordering — overdue, then due, then ok. */
+export function attentionRank(status: ReminderStatusValue): number {
+  return status === 'overdue' ? 2 : status === 'due' ? 1 : 0
 }
 
 /** `YYYY-MM-DD` for the local "today". */

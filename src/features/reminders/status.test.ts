@@ -2,8 +2,10 @@ import {
   addMonths,
   computeReminderStatus,
   DUE_SOON_DAYS,
+  DUE_SOON_KM,
   DUE_SOON_MILES,
   pushDueKind,
+  UPCOMING_KM,
 } from './status'
 import { PUSH_DUE_KIND_CASES, REMINDER_STATUS_CASES } from './status.fixtures'
 
@@ -22,6 +24,7 @@ describe('computeReminderStatus — thresholds', () => {
     lastCompletedOn: null,
     lastCompletedMileage: 40_000,
     currentMileage: 40_000,
+    mileageUnit: 'mi',
     today: '2026-09-08',
   } as const
 
@@ -47,10 +50,27 @@ describe('computeReminderStatus — thresholds', () => {
       lastCompletedOn: '2026-09-08',
       lastCompletedMileage: null,
       currentMileage: null,
+      mileageUnit: 'mi',
       today: '2026-09-24',
     })
     expect(r.daysRemaining).toBe(DUE_SOON_DAYS)
     expect(r.status).toBe('due')
+  })
+})
+
+describe('computeReminderStatus — km thresholds are scaled, not reused raw', () => {
+  const kmBase = {
+    intervalMiles: 5_000,
+    intervalMonths: null,
+    lastCompletedOn: null,
+    lastCompletedMileage: 40_000,
+    mileageUnit: 'km',
+    today: '2026-09-08',
+  } as const
+
+  it('exactly at the km threshold is "due", one km past it is "ok"', () => {
+    expect(computeReminderStatus({ ...kmBase, currentMileage: 45_000 - DUE_SOON_KM }).status).toBe('due')
+    expect(computeReminderStatus({ ...kmBase, currentMileage: 45_000 - DUE_SOON_KM - 1 }).status).toBe('ok')
   })
 })
 
@@ -60,6 +80,22 @@ describe('pushDueKind — the shared parity table (matches revv-api)', () => {
       expect(pushDueKind(input)).toBe(expected)
     })
   }
+})
+
+describe('pushDueKind — km thresholds are scaled, not reused raw', () => {
+  const kmMileBase = {
+    intervalMiles: 5_000,
+    intervalMonths: null,
+    lastCompletedOn: null,
+    lastCompletedMileage: 40_000,
+    mileageUnit: 'km',
+    today: '2026-09-08',
+  } as const
+
+  it(`exactly ${String(UPCOMING_KM)} km out is "upcoming"; one more is null`, () => {
+    expect(pushDueKind({ ...kmMileBase, currentMileage: 45_000 - UPCOMING_KM })).toBe('upcoming')
+    expect(pushDueKind({ ...kmMileBase, currentMileage: 45_000 - UPCOMING_KM - 1 })).toBeNull()
+  })
 })
 
 describe('addMonths', () => {
