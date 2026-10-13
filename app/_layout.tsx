@@ -16,13 +16,15 @@ import { JetBrainsMono_400Regular } from '@expo-google-fonts/jetbrains-mono'
 import { useFonts } from 'expo-font'
 import { SplashScreen, Stack, useRouter, useSegments } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { color, text } from '@revv/tokens'
+import { text } from '@revv/tokens'
 
 import { QueryProvider } from '@/data/QueryProvider'
 import { useSession } from '@/features/auth/use-session'
 import { usePushRegistration } from '@/features/notifications/use-push-registration'
 import { configureReminderNotifications } from '@/features/reminders/notifications'
+import { useColors } from '@/ui/theme'
 import { resolveFontFamily } from '@/ui/typography'
 
 configureReminderNotifications()
@@ -43,6 +45,7 @@ const AUTH_ROUTES = new Set(['sign-in', 'sign-up', 'verify-email', 'onboarding']
  * spinner.
  */
 function AuthGate() {
+  const color = useColors()
   const { status } = useSession()
   const segments = useSegments()
   const router = useRouter()
@@ -55,7 +58,7 @@ function AuthGate() {
     if (status === 'unauthenticated' && !onAuthRoute) {
       router.replace('/sign-in')
     } else if (status === 'authenticated' && onAuthRoute) {
-      router.replace('/garage')
+      router.replace('/home')
     }
   }, [status, segments, router])
 
@@ -68,7 +71,7 @@ function AuthGate() {
           fontSize: text.title.fontSize,
           fontFamily: resolveFontFamily('ui', text.title.weight),
         },
-        contentStyle: { backgroundColor: color.white },
+        contentStyle: { backgroundColor: color.canvas },
         animation: 'slide_from_right',
         animationDuration: 320,
       }}
@@ -78,8 +81,7 @@ function AuthGate() {
       <Stack.Screen name="sign-in" options={{ headerShown: false }} />
       <Stack.Screen name="sign-up" options={{ title: 'Create your account' }} />
       <Stack.Screen name="verify-email" options={{ title: 'Verify your email' }} />
-      <Stack.Screen name="garage" options={{ title: 'Garage' }} />
-      <Stack.Screen name="settings" options={{ title: 'Settings' }} />
+      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen
         name="vehicle/new"
         options={{ title: 'Add a vehicle', presentation: 'modal' }}
@@ -91,6 +93,7 @@ function AuthGate() {
 }
 
 export default function RootLayout() {
+  const color = useColors()
   const [fontsLoaded, fontError] = useFonts({
     AlbertSans_400Regular,
     AlbertSans_500Medium,
@@ -106,15 +109,17 @@ export default function RootLayout() {
   }, [fontsLoaded, fontError])
 
   if (!fontsLoaded && !fontError) {
-    return <View style={{ flex: 1, backgroundColor: color.white }} />
+    return <View style={{ flex: 1, backgroundColor: color.canvas }} />
   }
 
   return (
-    <QueryProvider>
-      <SafeAreaProvider>
-        <StatusBar style="light" />
-        <AuthGate />
-      </SafeAreaProvider>
-    </QueryProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryProvider>
+        <SafeAreaProvider>
+          <StatusBar style="light" />
+          <AuthGate />
+        </SafeAreaProvider>
+      </QueryProvider>
+    </GestureHandlerRootView>
   )
 }

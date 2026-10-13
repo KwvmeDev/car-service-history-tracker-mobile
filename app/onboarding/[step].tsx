@@ -1,8 +1,8 @@
-import { Image, Pressable, StyleSheet, View } from 'react-native'
+import { Image, Pressable, View } from 'react-native'
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router'
-import { color, radius, space } from '@revv/tokens'
+import { radius, space, type ColorPalette } from '@revv/tokens'
 
-import { AppText, Button } from '@/ui'
+import { AppText, Button, useThemedStyles } from '@/ui'
 import { markOnboardingSeen } from '@/features/onboarding/onboarding-store'
 import { ONBOARDING_STEPS } from '@/features/onboarding/steps'
 
@@ -16,7 +16,45 @@ import { ONBOARDING_STEPS } from '@/features/onboarding/steps'
  * step, no back button needed); finishing or skipping is `replace` into
  * sign-in so onboarding can't be swiped back into once done.
  */
+function buildStyles(color: ColorPalette) {
+  return {
+    page: {
+      flex: 1,
+      backgroundColor: color.canvas,
+      padding: space.xl,
+      gap: space.lg,
+    },
+    skip: {
+      position: 'absolute' as const,
+      top: space.lg,
+      right: space.lg,
+      zIndex: 1,
+      padding: space.xs,
+    },
+    imageWrap: {
+      flex: 1,
+      alignItems: 'center' as const,
+      justifyContent: 'center' as const,
+      marginTop: space.xl,
+    },
+    image: { width: '100%' as const, height: '100%' as const },
+    content: { gap: space.xxs },
+    dots: { flexDirection: 'row' as const, justifyContent: 'center' as const, gap: space.xs },
+    dot: {
+      width: 6,
+      height: 6,
+      borderRadius: radius.full,
+      backgroundColor: color.hairline,
+    },
+    dotActive: {
+      backgroundColor: color.blue,
+      width: 18,
+    },
+  }
+}
+
 export default function OnboardingStepScreen() {
+  const { styles } = useThemedStyles(buildStyles)
   const { step } = useLocalSearchParams<{ step: string }>()
   const router = useRouter()
   const index = Number(step) - 1
@@ -80,37 +118,3 @@ export default function OnboardingStepScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  page: {
-    flex: 1,
-    backgroundColor: color.white,
-    padding: space.xl,
-    gap: space.lg,
-  },
-  skip: {
-    position: 'absolute',
-    top: space.lg,
-    right: space.lg,
-    zIndex: 1,
-    padding: space.xs,
-  },
-  imageWrap: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: space.xl,
-  },
-  image: { width: '100%', height: '100%' },
-  content: { gap: space.xxs },
-  dots: { flexDirection: 'row', justifyContent: 'center', gap: space.xs },
-  dot: {
-    width: 6,
-    height: 6,
-    borderRadius: radius.full,
-    backgroundColor: color.hairline,
-  },
-  dotActive: {
-    backgroundColor: color.blue,
-    width: 18,
-  },
-})

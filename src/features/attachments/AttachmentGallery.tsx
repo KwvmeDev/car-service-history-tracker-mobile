@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Alert, Image, Pressable, StyleSheet, View } from 'react-native'
-import { color, radius, space } from '@revv/tokens'
+import { Alert, Image, Pressable, View } from 'react-native'
+import { radius, space, type ColorPalette } from '@revv/tokens'
 
-import { AppText } from '@/ui'
+import { AppText, useThemedStyles } from '@/ui'
 
 import { queuedFor } from './queue'
 import { useAttachToRecord, useRemoveAttachment } from './hooks'
@@ -19,6 +19,7 @@ export interface AttachmentGalleryProps {
  * plus any still sitting in the offline queue (shown dimmed with a "pending" tag).
  */
 export function AttachmentGallery({ vehicleId, serviceRecordId, attachments }: AttachmentGalleryProps) {
+  const { styles } = useThemedStyles(buildStyles)
   const attach = useAttachToRecord(vehicleId, serviceRecordId)
   const remove = useRemoveAttachment(vehicleId)
   const [busy, setBusy] = useState(false)
@@ -93,18 +94,20 @@ export function AttachmentGallery({ vehicleId, serviceRecordId, attachments }: A
 
 const SIZE = 72
 
-const styles = StyleSheet.create({
-  wrap: { gap: space.xs },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs },
-  thumb: {
-    width: SIZE,
-    height: SIZE,
-    borderRadius: radius.sm,
-    backgroundColor: color.hairline,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  pending: { opacity: 0.5 },
-  add: { borderWidth: 1, borderColor: color.hairline, backgroundColor: color.white },
-  busy: { opacity: 0.5 },
-})
+function buildStyles(color: ColorPalette) {
+  return {
+    wrap: { gap: space.xs },
+    grid: { flexDirection: 'row' as const, flexWrap: 'wrap' as const, gap: space.xs },
+    thumb: {
+      width: SIZE,
+      height: SIZE,
+      borderRadius: radius.sm,
+      backgroundColor: color.hairline,
+      alignItems: 'center' as const,
+      justifyContent: 'center' as const,
+    },
+    pending: { opacity: 0.5 },
+    add: { borderWidth: 1, borderColor: color.hairline, backgroundColor: color.canvas },
+    busy: { opacity: 0.5 },
+  }
+}

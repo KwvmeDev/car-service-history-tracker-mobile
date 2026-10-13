@@ -4,6 +4,7 @@ import { View } from 'react-native'
 
 import { AppText, Button, Field, Sheet } from '@/ui'
 import { useUpdateVehicle } from './hooks'
+import { MileageUnitToggle } from './MileageUnitToggle'
 import type { Vehicle } from './types'
 
 /**
@@ -25,11 +26,13 @@ export function EditVehicleSheet({
   const [mileage, setMileage] = useState(
     vehicle.currentMileage != null ? String(vehicle.currentMileage) : '',
   )
+  const [mileageUnit, setMileageUnit] = useState(vehicle.mileageUnit)
 
   useEffect(() => {
     if (visible) {
       setNickname(vehicle.nickname ?? '')
       setMileage(vehicle.currentMileage != null ? String(vehicle.currentMileage) : '')
+      setMileageUnit(vehicle.mileageUnit)
     }
   }, [visible, vehicle])
 
@@ -39,6 +42,7 @@ export function EditVehicleSheet({
       {
         nickname: nickname.trim().length > 0 ? nickname.trim() : null,
         currentMileage: parsedMileage,
+        mileageUnit,
       },
       { onSuccess: onDismiss },
     )
@@ -58,6 +62,7 @@ export function EditVehicleSheet({
           keyboardType="number-pad"
           data
         />
+        <MileageUnitToggle value={mileageUnit} onChange={setMileageUnit} />
         {update.isError ? (
           <AppText token="caption" tone="attention">
             That didn't save. It'll retry — check back in a moment.

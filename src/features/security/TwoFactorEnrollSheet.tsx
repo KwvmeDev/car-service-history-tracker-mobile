@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Linking, StyleSheet, View } from 'react-native'
-import { color, radius, space } from '@revv/tokens'
+import { Linking, View } from 'react-native'
+import { radius, space, type ColorPalette } from '@revv/tokens'
 
-import { AppText, Button, Field, Sheet } from '@/ui'
+import { AppText, Button, Field, Sheet, useThemedStyles } from '@/ui'
 
 import { useTwoFactor } from './use-two-factor'
 
@@ -17,6 +17,7 @@ export interface TwoFactorEnrollSheetProps {
  * a 6-digit code. Inline errors, no toasts; every step shows loading + success.
  */
 export function TwoFactorEnrollSheet({ visible, onDismiss }: TwoFactorEnrollSheetProps) {
+  const { styles } = useThemedStyles(buildStyles)
   const tf = useTwoFactor()
   const [password, setPassword] = useState('')
   const [code, setCode] = useState('')
@@ -104,17 +105,19 @@ export function TwoFactorEnrollSheet({ visible, onDismiss }: TwoFactorEnrollShee
   )
 }
 
-const styles = StyleSheet.create({
-  body: { gap: space.md },
-  key: {
-    backgroundColor: color.amberWash,
-    borderRadius: radius.xs,
-    padding: space.sm,
-  },
-  codes: {
-    gap: space.xxs,
-    backgroundColor: color.amberWash,
-    borderRadius: radius.xs,
-    padding: space.sm,
-  },
-})
+function buildStyles(color: ColorPalette) {
+  return {
+    body: { gap: space.md },
+    key: {
+      backgroundColor: color.amberWash,
+      borderRadius: radius.xs,
+      padding: space.sm,
+    },
+    codes: {
+      gap: space.xxs,
+      backgroundColor: color.amberWash,
+      borderRadius: radius.xs,
+      padding: space.sm,
+    },
+  }
+}

@@ -1,14 +1,47 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native'
-import { color, radius, space, text } from '@revv/tokens'
+import { radius, space, text, type ColorPalette } from '@revv/tokens'
 
 import { textStyle } from '@/ui/typography'
+import { useThemedStyles } from '@/ui/theme'
 
 import { useHealth } from '@/features/health/use-health'
+
+function buildStyles(color: ColorPalette) {
+  return {
+    screen: { flex: 1, backgroundColor: color.canvas, padding: space.xl },
+    center: { alignItems: 'center' as const, justifyContent: 'center' as const, gap: space.sm },
+    card: {
+      backgroundColor: color.blue,
+      borderRadius: radius.md,
+      padding: space.xl,
+      gap: space.xs,
+    },
+    row: {
+      flexDirection: 'row' as const,
+      justifyContent: 'space-between' as const,
+      paddingVertical: space.xs,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: color.hairline,
+    },
+    label: { color: color.blueSubtle, ...textStyle('label') },
+    value: { color: color.white, ...textStyle('mono') },
+    notice: {
+      marginTop: space.sm,
+      padding: space.sm,
+      borderRadius: radius.sm,
+      backgroundColor: color.amberWash,
+      color: color.amber,
+      fontSize: text.label.fontSize,
+    },
+    retry: { color: color.white, fontSize: text.body.fontSize, textDecorationLine: 'underline' as const },
+  }
+}
 
 // Sprint 0: one screen, the API health response through the generated client, all four
 // states rendered deliberately. Sentence case, no exclamation marks. Data values in the
 // mono/data font.
 export default function HealthScreen() {
+  const { color, styles } = useThemedStyles(buildStyles)
   const health = useHealth()
 
   if (health.phase === 'loading') {
@@ -48,6 +81,7 @@ export default function HealthScreen() {
 }
 
 function Row({ label, value }: { label: string; value: string }) {
+  const { styles } = useThemedStyles(buildStyles)
   return (
     <View style={styles.row}>
       <Text style={styles.label}>{label}</Text>
@@ -55,32 +89,3 @@ function Row({ label, value }: { label: string; value: string }) {
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: color.white, padding: space.xl },
-  center: { alignItems: 'center', justifyContent: 'center', gap: space.sm },
-  card: {
-    backgroundColor: color.blue,
-    borderRadius: radius.md,
-    padding: space.xl,
-    gap: space.xs,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingVertical: space.xs,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: color.hairline,
-  },
-  label: { color: color.blueSubtle, ...textStyle('label') },
-  value: { color: color.white, ...textStyle('mono') },
-  notice: {
-    marginTop: space.sm,
-    padding: space.sm,
-    borderRadius: radius.sm,
-    backgroundColor: color.amberWash,
-    color: color.amber,
-    fontSize: text.label.fontSize,
-  },
-  retry: { color: color.white, fontSize: text.body.fontSize, textDecorationLine: 'underline' },
-})

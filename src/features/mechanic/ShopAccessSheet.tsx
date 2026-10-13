@@ -1,8 +1,8 @@
 import { useState } from 'react'
-import { Share, StyleSheet, View } from 'react-native'
-import { borderWidth, color, radius, space } from '@revv/tokens'
+import { Share, View } from 'react-native'
+import { borderWidth, radius, space, type ColorPalette } from '@revv/tokens'
 
-import { AppText, Button, ErrorState, Sheet, Skeleton } from '@/ui'
+import { AppText, Button, ErrorState, Sheet, Skeleton, useThemedStyles } from '@/ui'
 
 import { useCreateMechanicLink, useMechanicLinks, useRevokeMechanicLink } from './hooks'
 import type { MechanicLink } from './types'
@@ -23,6 +23,7 @@ export interface ShopAccessSheetProps {
  * review. Share the URL (a shop opens it, or prints it as a QR from the web).
  */
 export function ShopAccessSheet({ vehicleId, vehicleLabel, visible, onDismiss }: ShopAccessSheetProps) {
+  const { styles } = useThemedStyles(buildStyles)
   const links = useMechanicLinks(vehicleId, visible)
   const create = useCreateMechanicLink(vehicleId)
   const revoke = useRevokeMechanicLink(vehicleId)
@@ -90,6 +91,7 @@ export function ShopAccessSheet({ vehicleId, vehicleLabel, visible, onDismiss }:
 }
 
 function LinkRow({ link, onRevoke }: { link: MechanicLink; onRevoke: () => void }) {
+  const { styles } = useThemedStyles(buildStyles)
   return (
     <View style={styles.row}>
       <View>
@@ -103,22 +105,24 @@ function LinkRow({ link, onRevoke }: { link: MechanicLink; onRevoke: () => void 
   )
 }
 
-const styles = StyleSheet.create({
-  body: { gap: space.md, paddingBottom: space.md },
-  fresh: {
-    gap: space.sm,
-    padding: space.sm,
-    borderRadius: radius.xs,
-    backgroundColor: color.amberWash,
-  },
-  url: { fontSize: 12 },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: space.sm,
-    paddingVertical: space.sm,
-    borderTopWidth: borderWidth.thin,
-    borderTopColor: color.hairline,
-  },
-})
+function buildStyles(color: ColorPalette) {
+  return {
+    body: { gap: space.md, paddingBottom: space.md },
+    fresh: {
+      gap: space.sm,
+      padding: space.sm,
+      borderRadius: radius.xs,
+      backgroundColor: color.amberWash,
+    },
+    url: { fontSize: 12 },
+    row: {
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      justifyContent: 'space-between' as const,
+      gap: space.sm,
+      paddingVertical: space.sm,
+      borderTopWidth: borderWidth.thin,
+      borderTopColor: color.hairline,
+    },
+  }
+}

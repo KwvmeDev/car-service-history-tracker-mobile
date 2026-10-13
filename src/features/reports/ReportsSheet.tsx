@@ -1,7 +1,7 @@
 import { ScrollView, StyleSheet, View } from 'react-native'
-import { color, space } from '@revv/tokens'
+import { space, type ColorPalette } from '@revv/tokens'
 
-import { AppText, Button, ErrorState, Sheet, Skeleton } from '@/ui'
+import { AppText, Button, ErrorState, Sheet, Skeleton, useThemedStyles } from '@/ui'
 
 import { reportDate, reportStatusLabel } from './format'
 import { useRevokeReport, useVehicleReports } from './hooks'
@@ -27,6 +27,7 @@ export function ReportsSheet({
   onGenerate,
   onRegenerate,
 }: ReportsSheetProps) {
+  const { styles } = useThemedStyles(buildStyles)
   const reports = useVehicleReports(vehicleId, visible)
   const revoke = useRevokeReport(vehicleId)
 
@@ -86,6 +87,7 @@ function ReportRow({
   onRevoke: () => void
   onRegenerate: () => void
 }) {
+  const { styles } = useThemedStyles(buildStyles)
   const revoked = report.status === 'revoked'
   return (
     <View style={[styles.row, revoked ? styles.rowRevoked : undefined]}>
@@ -105,19 +107,21 @@ function ReportRow({
   )
 }
 
-const styles = StyleSheet.create({
-  scroll: { maxHeight: 440 },
-  body: { gap: space.md },
-  skeletons: { gap: space.sm, paddingVertical: space.sm },
-  empty: { gap: space.md, alignItems: 'center', paddingVertical: space.lg },
-  emptyText: { textAlign: 'center' },
-  row: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: color.hairline,
-    paddingVertical: space.sm,
-    gap: space.xs,
-  },
-  rowRevoked: { opacity: 0.5 },
-  rowMain: { gap: space.xxs },
-  rowActions: { flexDirection: 'row', gap: space.md },
-})
+function buildStyles(color: ColorPalette) {
+  return {
+    scroll: { maxHeight: 440 },
+    body: { gap: space.md },
+    skeletons: { gap: space.sm, paddingVertical: space.sm },
+    empty: { gap: space.md, alignItems: 'center' as const, paddingVertical: space.lg },
+    emptyText: { textAlign: 'center' as const },
+    row: {
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: color.hairline,
+      paddingVertical: space.sm,
+      gap: space.xs,
+    },
+    rowRevoked: { opacity: 0.5 },
+    rowMain: { gap: space.xxs },
+    rowActions: { flexDirection: 'row' as const, gap: space.md },
+  }
+}

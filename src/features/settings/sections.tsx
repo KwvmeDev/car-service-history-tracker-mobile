@@ -1,10 +1,35 @@
 import type { ReactNode } from 'react'
-import { StyleSheet, Switch, View } from 'react-native'
-import { borderWidth, color, radius, space } from '@revv/tokens'
+import { Switch, View } from 'react-native'
+import { borderWidth, radius, space, type ColorPalette } from '@revv/tokens'
 
-import { AppText } from '@/ui'
+import { AppText, useThemedStyles } from '@/ui'
+
+function buildStyles(color: ColorPalette) {
+  return {
+    section: { gap: space.xs },
+    card: {
+      borderWidth: borderWidth.thin,
+      borderColor: color.hairline,
+      borderRadius: radius.md,
+      overflow: 'hidden' as const,
+    },
+    row: {
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      justifyContent: 'space-between' as const,
+      gap: space.md,
+      paddingVertical: space.sm,
+      paddingHorizontal: space.md,
+      borderTopWidth: borderWidth.thin,
+      borderTopColor: color.hairline,
+      minHeight: 52,
+    },
+    rowText: { flex: 1, gap: space.xxs },
+  }
+}
 
 export function SettingsSection({ title, children }: { title: string; children: ReactNode }) {
+  const { styles } = useThemedStyles(buildStyles)
   return (
     <View style={styles.section}>
       <AppText token="label" tone="secondary">
@@ -26,6 +51,7 @@ export function SettingsRow({
   right?: ReactNode
   onPress?: () => void
 }) {
+  const { styles } = useThemedStyles(buildStyles)
   return (
     <View
       style={styles.row}
@@ -58,6 +84,7 @@ export function SettingsToggle({
   onValueChange: (v: boolean) => void
   disabled?: boolean
 }) {
+  const { color } = useThemedStyles(buildStyles)
   return (
     <SettingsRow
       label={label}
@@ -74,25 +101,3 @@ export function SettingsToggle({
     />
   )
 }
-
-const styles = StyleSheet.create({
-  section: { gap: space.xs },
-  card: {
-    borderWidth: borderWidth.thin,
-    borderColor: color.hairline,
-    borderRadius: radius.md,
-    overflow: 'hidden',
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: space.md,
-    paddingVertical: space.sm,
-    paddingHorizontal: space.md,
-    borderTopWidth: borderWidth.thin,
-    borderTopColor: color.hairline,
-    minHeight: 52,
-  },
-  rowText: { flex: 1, gap: space.xxs },
-})

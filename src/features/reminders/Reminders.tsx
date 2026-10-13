@@ -5,6 +5,7 @@ import { AppText, Button, ErrorState, Skeleton } from '@/ui'
 
 import { ReminderRow } from './ReminderRow'
 import { useCompleteReminder, useReminders } from './hooks'
+import { attentionRank } from './status'
 
 export interface RemindersProps {
   vehicleId: string
@@ -20,7 +21,9 @@ export function Reminders({ vehicleId, onAddPress, onEditPress }: RemindersProps
   const reminders = useReminders(vehicleId)
   const complete = useCompleteReminder(vehicleId)
 
-  const rows = [...(reminders.data ?? [])].sort((a, b) => rank(b.status) - rank(a.status))
+  const rows = [...(reminders.data ?? [])].sort(
+    (a, b) => attentionRank(b.status) - attentionRank(a.status),
+  )
 
   return (
     <View style={styles.wrap}>
@@ -69,9 +72,6 @@ export function Reminders({ vehicleId, onAddPress, onEditPress }: RemindersProps
     </View>
   )
 }
-
-const rank = (status: 'ok' | 'due' | 'overdue'): number =>
-  status === 'overdue' ? 2 : status === 'due' ? 1 : 0
 
 const styles = StyleSheet.create({
   wrap: { gap: space.sm },

@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native'
-import { color, space } from '@revv/tokens'
+import { space, type ColorPalette } from '@revv/tokens'
 
-import { AppText, Badge } from '@/ui'
+import { AppText, Badge, useThemedStyles } from '@/ui'
 import { isPending, type WithPending } from '@/data/pending'
 
 import { intervalLabel, nextDueLabel, remainingLabel } from './format'
@@ -11,6 +11,32 @@ export interface ReminderRowProps {
   reminder: WithPending<Reminder>
   onPress: () => void
   onComplete: () => void
+  /** Shown under the title when the row is out of its own vehicle's context
+   *  (the cross-vehicle Reminders tab) — omitted on a single vehicle's profile. */
+  vehicleTitle?: string
+}
+
+function buildStyles(color: ColorPalette) {
+  return {
+    row: {
+      flexDirection: 'row' as const,
+      alignItems: 'flex-start' as const,
+      gap: space.sm,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: color.hairline,
+      paddingVertical: space.sm,
+    },
+    body: { flex: 1, gap: space.xxs },
+    title: { flex: 1 },
+    titleLine: {
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      justifyContent: 'space-between' as const,
+      gap: space.sm,
+    },
+    remaining: { marginTop: space.xxs },
+    done: { paddingTop: space.xxs },
+  }
 }
 
 /**
@@ -21,7 +47,8 @@ export interface ReminderRowProps {
  * The tap-to-edit target and "Mark done" are **siblings**, never nested — two
  * Pressables inside one another render `<button>` inside `<button>` on web.
  */
-export function ReminderRow({ reminder, onPress, onComplete }: ReminderRowProps) {
+export function ReminderRow({ reminder, onPress, onComplete, vehicleTitle }: ReminderRowProps) {
+  const { styles } = useThemedStyles(buildStyles)
   const pending = isPending(reminder)
   const attention = reminder.status === 'due' || reminder.status === 'overdue'
 
@@ -48,7 +75,7 @@ export function ReminderRow({ reminder, onPress, onComplete }: ReminderRowProps)
         </View>
 
         <AppText token="label" tone="secondary">
-          {intervalLabel(reminder)}
+          {vehicleTitle != null ? `${vehicleTitle} · ${intervalLabel(reminder)}` : intervalLabel(reminder)}
         </AppText>
 
         <AppText
@@ -74,24 +101,3 @@ export function ReminderRow({ reminder, onPress, onComplete }: ReminderRowProps)
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  row: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: space.sm,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: color.hairline,
-    paddingVertical: space.sm,
-  },
-  body: { flex: 1, gap: space.xxs },
-  title: { flex: 1 },
-  titleLine: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    gap: space.sm,
-  },
-  remaining: { marginTop: space.xxs },
-  done: { paddingTop: space.xxs },
-})

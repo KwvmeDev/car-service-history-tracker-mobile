@@ -1,12 +1,14 @@
 import { useEffect, useRef } from 'react'
-import { Animated, StyleSheet, View } from 'react-native'
-import { color, space, stagger } from '@revv/tokens'
+import { Animated, View } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
+import { radius, space, stagger, type ColorPalette } from '@revv/tokens'
 
-import { AppText, Badge } from '@/ui'
+import { AppText, Badge, Card, useThemedStyles } from '@/ui'
 import { easeEnter } from '@/ui/motion'
 import { isPending, type WithPending } from '@/data/pending'
 
-import { entrySubtitle, formatCost, formatMileage, serviceTypeLabel } from './format'
+import { serviceTypeIcon } from './service-type-icons'
+import { formatCost, formatDate, serviceTypeLabel } from './format'
 import type { ServiceRecord, ServiceType } from './types'
 
 export interface TimelineEntryProps {
@@ -19,13 +21,32 @@ export interface TimelineEntryProps {
   onPress: () => void
 }
 
+const ICON_SIZE = 22
+const AVATAR_SIZE = 44
+
 /**
- * One entry on the stamped timeline (design-system.md §Core components → Timeline
- * entry). Left rail marker on a hairline rail; type + mileage (mono, right-aligned);
- * shop + date secondary; cost mono. Stamps in once, staggered, from a hair below with
- * a slight scale-from-98%.
+ * One service record — an outlined card (not the old dot-and-rail timeline): a
+ * service-type icon avatar, title/shop/date+cost, a chevron. Stamps in once,
+ * staggered, from a hair below with a slight scale-from-98%.
  */
+function buildStyles(color: ColorPalette) {
+  return {
+    card: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: space.sm },
+    avatar: {
+      width: AVATAR_SIZE,
+      height: AVATAR_SIZE,
+      borderRadius: radius.full,
+      backgroundColor: color.blueWash,
+      alignItems: 'center' as const,
+      justifyContent: 'center' as const,
+    },
+    body: { flex: 1, gap: space.xxs },
+    metaRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: space.xs },
+  }
+}
+
 export function TimelineEntry({ record, types, index, animateIn, onPress }: TimelineEntryProps) {
+  const { color, styles } = useThemedStyles(buildStyles)
   const anim = useRef(new Animated.Value(animateIn ? 0 : 1)).current
 
   useEffect(() => {
@@ -42,39 +63,36 @@ export function TimelineEntry({ record, types, index, animateIn, onPress }: Time
   const cost = formatCost(record.costMinor, record.costCurrency)
   const pending = isPending(record)
   const attachmentCount = record.attachments.length
+  const dateAndCost = cost != null ? `${formatDate(record.performedOn)} · ${cost}` : formatDate(record.performedOn)
 
   return (
     <Animated.View
-      style={[
-        styles.row,
-        {
-          opacity: anim,
-          transform: [
-            { translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) },
-            { scale: anim.interpolate({ inputRange: [0, 1], outputRange: [0.98, 1] }) },
-          ],
-        },
-      ]}
+      style={{
+        opacity: anim,
+        transform: [
+          { translateY: anim.interpolate({ inputRange: [0, 1], outputRange: [6, 0] }) },
+          { scale: anim.interpolate({ inputRange: [0, 1], outputRange: [0.98, 1] }) },
+        ],
+      }}
     >
-      <View style={styles.rail}>
-        <View style={styles.marker} />
-        <View style={styles.line} />
-      </View>
-
-      <View accessibilityRole="button" onTouchEnd={onPress} style={styles.body}>
-        <View style={styles.topLine}>
-          <AppText token="heading" style={styles.type} numberOfLines={1}>
-            {serviceTypeLabel(record.serviceTypeKey, types)}
-          </AppText>
-          <AppText token="mono">{formatMileage(record.mileage)}</AppText>
+      <Card surface="outline" onPress={onPress} style={styles.card}>
+        <View style={styles.avatar}>
+          <Ionicons name={serviceTypeIcon(record.serviceTypeKey)} size={ICON_SIZE} color={color.blue} />
         </View>
 
-        <AppText token="label" tone="secondary">
-          {entrySubtitle(record)}
-        </AppText>
-
-        <View style={styles.bottomLine}>
-          <View style={styles.tags}>
+        <View style={styles.body}>
+          <AppText token="heading" numberOfLines={1}>
+            {serviceTypeLabel(record.serviceTypeKey, types)}
+          </AppText>
+          {record.shopName != null && record.shopName.trim().length > 0 ? (
+            <AppText token="label" tone="secondary" numberOfLines={1}>
+              {record.shopName}
+            </AppText>
+          ) : null}
+          <View style={styles.metaRow}>
+            <AppText token="label" tone="secondary">
+              {dateAndCost}
+            </AppText>
             {pending ? <Badge label="Not synced" status="due" /> : null}
             {attachmentCount > 0 ? (
               <AppText token="caption" tone="secondary">
@@ -82,27 +100,10 @@ export function TimelineEntry({ record, types, index, animateIn, onPress }: Time
               </AppText>
             ) : null}
           </View>
-          {cost != null ? <AppText token="mono">{cost}</AppText> : null}
         </View>
-      </View>
+
+        <Ionicons name="chevron-forward" size={18} color={color.hairline} />
+      </Card>
     </Animated.View>
   )
 }
-
-const styles = StyleSheet.create({
-  row: { flexDirection: 'row', gap: space.sm },
-  rail: { alignItems: 'center', width: 12 },
-  marker: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: color.blue,
-    marginTop: space.xxs,
-  },
-  line: { flex: 1, width: 1, backgroundColor: color.hairline, marginTop: space.xxs },
-  body: { flex: 1, paddingBottom: space.lg, gap: space.xxs },
-  topLine: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', gap: space.sm },
-  type: { flex: 1 },
-  bottomLine: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: space.xxs },
-  tags: { flexDirection: 'row', alignItems: 'center', gap: space.xs },
-})

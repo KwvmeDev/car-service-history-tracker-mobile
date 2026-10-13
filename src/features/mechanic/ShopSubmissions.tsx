@@ -1,7 +1,7 @@
-import { StyleSheet, View } from 'react-native'
-import { borderWidth, color, radius, space } from '@revv/tokens'
+import { View } from 'react-native'
+import { borderWidth, radius, space, type ColorPalette } from '@revv/tokens'
 
-import { AppText, Button, ErrorState } from '@/ui'
+import { AppText, Button, ErrorState, useThemedStyles } from '@/ui'
 import { useServiceTypes } from '@/features/service-records/use-service-types'
 
 import { useAcceptSubmission, useMechanicSubmissions, useRejectSubmission } from './hooks'
@@ -19,6 +19,7 @@ function money(minor: number | null, currency: string | null): string | null {
  * Renders nothing when the queue is empty and not loading.
  */
 export function ShopSubmissions({ vehicleId }: { vehicleId: string }) {
+  const { styles } = useThemedStyles(buildStyles)
   const queue = useMechanicSubmissions(vehicleId)
   const types = useServiceTypes()
   const accept = useAcceptSubmission(vehicleId)
@@ -71,6 +72,7 @@ interface RowProps {
 }
 
 function SubmissionRow({ submission: s, typeLabel, cost, busy, onAccept, onReject }: RowProps) {
+  const { styles } = useThemedStyles(buildStyles)
   return (
     <View style={styles.row}>
       <View style={styles.rowHead}>
@@ -100,15 +102,17 @@ function SubmissionRow({ submission: s, typeLabel, cost, busy, onAccept, onRejec
   )
 }
 
-const styles = StyleSheet.create({
-  wrap: { gap: space.sm },
-  row: {
-    gap: space.xxs,
-    padding: space.md,
-    borderRadius: radius.md,
-    borderWidth: borderWidth.thin,
-    borderColor: color.hairline,
-  },
-  rowHead: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  actions: { flexDirection: 'row', alignItems: 'center', gap: space.sm, marginTop: space.xs },
-})
+function buildStyles(color: ColorPalette) {
+  return {
+    wrap: { gap: space.sm },
+    row: {
+      gap: space.xxs,
+      padding: space.md,
+      borderRadius: radius.md,
+      borderWidth: borderWidth.thin,
+      borderColor: color.hairline,
+    },
+    rowHead: { flexDirection: 'row' as const, alignItems: 'center' as const, justifyContent: 'space-between' as const },
+    actions: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: space.sm, marginTop: space.xs },
+  }
+}

@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import { Linking, ScrollView, StyleSheet, View } from 'react-native'
+import { Linking, ScrollView, View } from 'react-native'
 import Constants from 'expo-constants'
-import { space } from '@revv/tokens'
+import { space, type ColorPalette } from '@revv/tokens'
 
-import { AppText, Badge, Button, ErrorState, Field, Skeleton } from '@/ui'
+import { AppText, Badge, Button, ErrorState, Field, Skeleton, useThemedStyles } from '@/ui'
 import { authClient } from '@/features/auth/auth-client'
 import { useSignOut } from '@/features/auth/use-session'
 import {
@@ -29,6 +29,7 @@ interface SessionShape {
 }
 
 export function SettingsScreen() {
+  const { styles } = useThemedStyles(buildStyles)
   const session = authClient.useSession() as SessionShape
   const user = session.data?.user
   const signOut = useSignOut()
@@ -45,7 +46,9 @@ export function SettingsScreen() {
   const quietOn = p?.quietHoursStart != null && p.quietHoursEnd != null
 
   return (
-    <ScrollView contentContainerStyle={styles.content}>
+    <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
+      <AppText token="title">Settings</AppText>
+
       {/* Account */}
       <SettingsSection title="Account">
         {session.isPending ? (
@@ -185,8 +188,11 @@ export function SettingsScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  content: { padding: space.md, gap: space.lg },
-  pad: { padding: space.md },
-  gap: { gap: space.sm },
-})
+function buildStyles(color: ColorPalette) {
+  return {
+    screen: { flex: 1, backgroundColor: color.canvas },
+    content: { padding: space.md, paddingTop: space.lg, paddingBottom: space.xxxl * 2, gap: space.lg },
+    pad: { padding: space.md },
+    gap: { gap: space.sm },
+  }
+}

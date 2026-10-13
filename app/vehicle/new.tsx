@@ -1,13 +1,15 @@
 import { useMemo, useState } from 'react'
-import { Alert, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native'
+import { Alert, Image, KeyboardAvoidingView, Platform, Pressable, ScrollView, View } from 'react-native'
 import { useRouter } from 'expo-router'
 import * as ImagePicker from 'expo-image-picker'
-import { color, radius, space } from '@revv/tokens'
+import { radius, space, type ColorPalette } from '@revv/tokens'
 
-import { AppText, Button, Card, Field } from '@/ui'
+import { AppText, Button, Card, Field, useThemedStyles } from '@/ui'
 import { newId } from '@/data/ids'
 import { uploadVehiclePhoto } from '@/features/vehicles/cloudinary'
 import { useCreateVehicle, useDecodeVin } from '@/features/vehicles/hooks'
+import { defaultMileageUnit } from '@/features/vehicles/mileage-unit'
+import { MileageUnitToggle } from '@/features/vehicles/MileageUnitToggle'
 import { VinReveal } from '@/features/vehicles/VinReveal'
 import type { Vehicle } from '@/features/vehicles/types'
 
@@ -24,11 +26,34 @@ interface PickedPhoto {
   mimeType: string
 }
 
+function buildStyles(color: ColorPalette) {
+  return {
+    flex: { flex: 1 },
+    content: { padding: space.xl, gap: space.md, flexGrow: 1 },
+    center: { flex: 1, alignItems: 'center' as const, justifyContent: 'center' as const },
+    photoPicker: { alignSelf: 'center' as const },
+    photoPreview: { width: PHOTO_SIZE, height: PHOTO_SIZE, borderRadius: radius.md },
+    photoPlaceholder: {
+      width: PHOTO_SIZE,
+      height: PHOTO_SIZE,
+      borderRadius: radius.md,
+      borderWidth: 1,
+      borderColor: color.hairline,
+      backgroundColor: color.canvas,
+      alignItems: 'center' as const,
+      justifyContent: 'center' as const,
+      gap: space.xxs,
+    },
+  }
+}
+
 export default function AddVehicleScreen() {
+  const { styles } = useThemedStyles(buildStyles)
   const router = useRouter()
   const [id] = useState(newId)
   const [vin, setVin] = useState('')
   const [nickname, setNickname] = useState('')
+  const [mileageUnit, setMileageUnit] = useState<'mi' | 'km'>(defaultMileageUnit)
   const [photo, setPhoto] = useState<PickedPhoto | null>(null)
   const [uploadingPhoto, setUploadingPhoto] = useState(false)
   const [phase, setPhase] = useState<Phase>({ step: 'form' })
@@ -99,6 +124,7 @@ export default function AddVehicleScreen() {
           id,
           vin: vin.length === VIN_LENGTH ? vin.toUpperCase() : null,
           nickname: nickname.trim().length > 0 ? nickname.trim() : null,
+          mileageUnit,
           photoUrl,
         },
         {
@@ -173,6 +199,7 @@ export default function AddVehicleScreen() {
               error={!vinReady ? `A VIN is ${String(VIN_LENGTH)} characters.` : undefined}
             />
             <Field label="Nickname (optional)" value={nickname} onChangeText={setNickname} />
+            <MileageUnitToggle value={mileageUnit} onChange={setMileageUnit} />
             {create.isError ? (
               <AppText token="caption" tone="attention">
                 We couldn't save that. Check your connection and try again.
@@ -228,21 +255,3 @@ export default function AddVehicleScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  flex: { flex: 1 },
-  content: { padding: space.xl, gap: space.md, flexGrow: 1 },
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-  photoPicker: { alignSelf: 'center' },
-  photoPreview: { width: PHOTO_SIZE, height: PHOTO_SIZE, borderRadius: radius.md },
-  photoPlaceholder: {
-    width: PHOTO_SIZE,
-    height: PHOTO_SIZE,
-    borderRadius: radius.md,
-    borderWidth: 1,
-    borderColor: color.hairline,
-    backgroundColor: color.white,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: space.xxs,
-  },
-})

@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native'
-import { color, radius, space } from '@revv/tokens'
+import { Pressable, ScrollView, View } from 'react-native'
+import { radius, space, type ColorPalette } from '@revv/tokens'
 
-import { AppText, Button, Field, Sheet } from '@/ui'
+import { AppText, Button, Field, Sheet, useThemedStyles } from '@/ui'
 import { newId } from '@/data/ids'
 import { AttachmentGallery } from '@/features/attachments/AttachmentGallery'
 
@@ -34,6 +34,7 @@ interface FilledFromReceipt {
 const NO_FILL: FilledFromReceipt = { costMinor: null, performedOn: null, shopName: null, odometer: null }
 
 export function LogServiceSheet({ vehicleId, visible, onDismiss, record }: LogServiceSheetProps) {
+  const { styles } = useThemedStyles(buildStyles)
   const types = useServiceTypes()
   const log = useLogServiceRecord(vehicleId)
   const update = useUpdateServiceRecord(vehicleId, record?.id ?? '')
@@ -222,18 +223,20 @@ export function LogServiceSheet({ vehicleId, visible, onDismiss, record }: LogSe
   )
 }
 
-const styles = StyleSheet.create({
-  scroll: { maxHeight: 460 },
-  form: { gap: space.md },
-  scanRow: { gap: space.xs },
-  field: { gap: space.xxs },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs },
-  chip: {
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: color.hairline,
-    paddingHorizontal: space.sm,
-    paddingVertical: space.xs,
-  },
-  chipActive: { backgroundColor: color.blue, borderColor: color.blue },
-})
+function buildStyles(color: ColorPalette) {
+  return {
+    scroll: { maxHeight: 460 },
+    form: { gap: space.md },
+    scanRow: { gap: space.xs },
+    field: { gap: space.xxs },
+    chips: { flexDirection: 'row' as const, flexWrap: 'wrap' as const, gap: space.xs },
+    chip: {
+      borderRadius: radius.full,
+      borderWidth: 1,
+      borderColor: color.hairline,
+      paddingHorizontal: space.sm,
+      paddingVertical: space.xs,
+    },
+    chipActive: { backgroundColor: color.blue, borderColor: color.blue },
+  }
+}

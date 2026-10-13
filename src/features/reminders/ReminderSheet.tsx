@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native'
-import { color, radius, space } from '@revv/tokens'
+import { Pressable, ScrollView, View } from 'react-native'
+import { radius, space, type ColorPalette } from '@revv/tokens'
 
-import { AppText, Button, Field, Sheet } from '@/ui'
+import { AppText, Button, Field, Sheet, useThemedStyles } from '@/ui'
 import { newId } from '@/data/ids'
 import { useServiceTypes } from '@/features/service-records/use-service-types'
 
@@ -20,6 +20,7 @@ export interface ReminderSheetProps {
 const digits = (t: string): string => t.replace(/[^0-9]/g, '')
 
 export function ReminderSheet({ vehicleId, visible, onDismiss, reminder }: ReminderSheetProps) {
+  const { styles } = useThemedStyles(buildStyles)
   const types = useServiceTypes()
   const create = useCreateReminder(vehicleId)
   const update = useUpdateReminder(vehicleId, reminder?.id ?? '')
@@ -153,18 +154,20 @@ export function ReminderSheet({ vehicleId, visible, onDismiss, reminder }: Remin
   )
 }
 
-const styles = StyleSheet.create({
-  scroll: { maxHeight: 460 },
-  form: { gap: space.md },
-  field: { gap: space.xxs },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: space.xs },
-  chip: {
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: color.hairline,
-    paddingHorizontal: space.sm,
-    paddingVertical: space.xs,
-  },
-  chipActive: { backgroundColor: color.blue, borderColor: color.blue },
-  editActions: { flexDirection: 'row', gap: space.sm, alignItems: 'center' },
-})
+function buildStyles(color: ColorPalette) {
+  return {
+    scroll: { maxHeight: 460 },
+    form: { gap: space.md },
+    field: { gap: space.xxs },
+    chips: { flexDirection: 'row' as const, flexWrap: 'wrap' as const, gap: space.xs },
+    chip: {
+      borderRadius: radius.full,
+      borderWidth: 1,
+      borderColor: color.hairline,
+      paddingHorizontal: space.sm,
+      paddingVertical: space.xs,
+    },
+    chipActive: { backgroundColor: color.blue, borderColor: color.blue },
+    editActions: { flexDirection: 'row' as const, gap: space.sm, alignItems: 'center' as const },
+  }
+}

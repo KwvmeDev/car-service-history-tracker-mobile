@@ -1,11 +1,12 @@
-import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
+import { useMutation, useQueries, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
 
 import { markPending, type WithPending } from '@/data/pending'
-import { readVehicleList, vehicleKeys } from '@/features/vehicles/hooks'
+import { readVehicleList, useVehicles, vehicleKeys } from '@/features/vehicles/hooks'
+import { vehicleTitle } from '@/features/vehicles/types'
 import type { Vehicle } from '@/features/vehicles/types'
 
 import * as reminderApi from './api'
-import { computeReminderStatus, todayIso } from './status'
+import { attentionRank, computeReminderStatus, todayIso } from './status'
 import type { CreateReminderBody, PatchReminderBody, Reminder } from './types'
 
 export const reminderKeys = {
@@ -24,6 +25,48 @@ export function useReminders(vehicleId: string) {
   })
 }
 
+/** A reminder already carries `vehicleId` (it names which vehicle it belongs to) —
+ *  this just attaches the vehicle's display title alongside it. */
+export interface ReminderWithVehicle extends Reminder {
+  vehicleTitle: string
+}
+
+/**
+ * Every reminder across every vehicle in the garage, worst-first. There is no
+ * cross-vehicle endpoint (each vehicle's reminders are fetched separately) — a
+ * personal garage is a handful of cars, so fanning out one query per vehicle and
+ * merging client-side (via TanStack Query's `useQueries`, so each vehicle's list
+ * still caches under its own `reminderKeys.list(vehicleId)` key) is simpler than
+ * standing up an aggregate endpoint for it.
+ */
+export function useAllReminders() {
+  const vehicles = useVehicles()
+
+  const results = useQueries({
+    queries: (vehicles.data ?? []).map((vehicle) => ({
+      queryKey: reminderKeys.list(vehicle.id),
+      queryFn: () => reminderApi.listReminders(vehicle.id),
+    })),
+  })
+
+  const isLoading = vehicles.isLoading || results.some((r) => r.isLoading)
+  const isError = vehicles.isError || results.some((r) => r.isError)
+
+  const data: ReminderWithVehicle[] = (vehicles.data ?? [])
+    .flatMap((vehicle, index) => {
+      const rows = results[index]?.data ?? []
+      return rows.map((r) => ({ ...r, vehicleTitle: vehicleTitle(vehicle) }))
+    })
+    .sort((a, b) => attentionRank(b.status) - attentionRank(a.status))
+
+  const refetch = (): void => {
+    void vehicles.refetch()
+    results.forEach((r) => void r.refetch())
+  }
+
+  return { data, isLoading, isError, refetch }
+}
+
 function currentMileageOf(qc: QueryClient, vehicleId: string): number | null {
   const detail = qc.getQueryData<Vehicle>(vehicleKeys.detail(vehicleId))
   if (detail?.currentMileage != null) return detail.currentMileage
@@ -31,14 +74,24 @@ function currentMileageOf(qc: QueryClient, vehicleId: string): number | null {
   return fromList?.currentMileage ?? null
 }
 
+/** Which unit the vehicle's own numbers are in — the "due soon" window is scaled
+ *  to it (a km vehicle needs a wider raw-number threshold than a mi one). */
+function mileageUnitOf(qc: QueryClient, vehicleId: string): 'mi' | 'km' {
+  const detail = qc.getQueryData<Vehicle>(vehicleKeys.detail(vehicleId))
+  if (detail?.mileageUnit != null) return detail.mileageUnit
+  const fromList = readVehicleList(qc)?.find((v) => v.id === vehicleId)
+  return fromList?.mileageUnit ?? 'mi'
+}
+
 /** Recompute status/remaining locally so an optimistic row looks right immediately. */
-function withComputedStatus(reminder: Reminder, currentMileage: number | null): Reminder {
+function withComputedStatus(reminder: Reminder, currentMileage: number | null, mileageUnit: 'mi' | 'km'): Reminder {
   const computed = computeReminderStatus({
     intervalMiles: reminder.intervalMiles,
     intervalMonths: reminder.intervalMonths,
     lastCompletedOn: reminder.lastCompletedOn,
     lastCompletedMileage: reminder.lastCompletedMileage,
     currentMileage,
+    mileageUnit,
     today: todayIso(),
   })
   return { ...reminder, ...computed }
@@ -59,6 +112,7 @@ export function useCreateReminder(vehicleId: string) {
     onMutate: (body) => {
       const now = new Date().toISOString()
       const mileage = currentMileageOf(qc, vehicleId)
+      const unit = mileageUnitOf(qc, vehicleId)
       const base: Reminder = {
         id: body.id,
         vehicleId,
@@ -77,7 +131,7 @@ export function useCreateReminder(vehicleId: string) {
         createdAt: now,
         updatedAt: now,
       }
-      const optimistic = markPending(withComputedStatus(base, mileage))
+      const optimistic = markPending(withComputedStatus(base, mileage, unit))
       const prev = qc.getQueryData<Row[]>(reminderKeys.list(vehicleId))
       upsert(qc, vehicleId, optimistic)
       return { prev }
@@ -100,10 +154,11 @@ export function useUpdateReminder(vehicleId: string, id: string) {
     mutationFn: (body: PatchReminderBody) => reminderApi.patchReminder(id, body),
     onMutate: (body) => {
       const mileage = currentMileageOf(qc, vehicleId)
+      const unit = mileageUnitOf(qc, vehicleId)
       const prev = qc.getQueryData<Row[]>(reminderKeys.list(vehicleId))
       qc.setQueryData<Row[]>(reminderKeys.list(vehicleId), (rows = []) =>
         rows.map((r) =>
-          r.id === id ? markPending(withComputedStatus({ ...r, ...body }, mileage)) : r,
+          r.id === id ? markPending(withComputedStatus({ ...r, ...body }, mileage, unit)) : r,
         ),
       )
       return { prev }
@@ -130,6 +185,7 @@ export function useCompleteReminder(vehicleId: string) {
     mutationFn: (id: string) => reminderApi.patchReminder(id, { markCompleted: true }),
     onMutate: (id) => {
       const mileage = currentMileageOf(qc, vehicleId)
+      const unit = mileageUnitOf(qc, vehicleId)
       const prev = qc.getQueryData<Row[]>(reminderKeys.list(vehicleId))
       qc.setQueryData<Row[]>(reminderKeys.list(vehicleId), (rows = []) =>
         rows.map((r) =>
@@ -138,6 +194,7 @@ export function useCompleteReminder(vehicleId: string) {
                 withComputedStatus(
                   { ...r, lastCompletedOn: todayIso(), lastCompletedMileage: mileage },
                   mileage,
+                  unit,
                 ),
               )
             : r,

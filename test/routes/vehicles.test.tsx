@@ -1,11 +1,11 @@
 import type { ReactNode } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen, waitFor } from '@testing-library/react-native'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react-native'
 
 import * as vehicleApi from '@/features/vehicles/api'
 import type { VehicleListItem } from '@/features/vehicles/types'
 
-import GarageScreen from '../../app/garage'
+import VehiclesScreen from '../../app/(tabs)/vehicles'
 
 jest.mock('@/features/vehicles/api')
 jest.mock('expo-router', () => ({
@@ -41,17 +41,17 @@ const item = (over: Partial<VehicleListItem> = {}): VehicleListItem => ({
   ...over,
 })
 
-describe('GarageScreen — four states', () => {
+describe('VehiclesScreen — four states', () => {
   it('shows the loading skeleton', () => {
     mockApi.listVehicles.mockReturnValue(new Promise(() => undefined))
-    wrap(<GarageScreen />)
+    wrap(<VehiclesScreen />)
     // three skeleton cards render immediately; no vehicle text yet
     expect(screen.queryByText('2003 Honda Accord')).toBeNull()
   })
 
   it('shows the designed empty state, not "No items yet"', async () => {
     mockApi.listVehicles.mockResolvedValue([])
-    wrap(<GarageScreen />)
+    wrap(<VehiclesScreen />)
     await waitFor(() => {
       expect(screen.getByText('Your garage is empty')).toBeOnTheScreen()
     })
@@ -60,7 +60,7 @@ describe('GarageScreen — four states', () => {
 
   it('shows an inline error with a retry', async () => {
     mockApi.listVehicles.mockRejectedValue(Object.assign(new Error('down'), { status: 500 }))
-    wrap(<GarageScreen />)
+    wrap(<VehiclesScreen />)
     await waitFor(() => {
       expect(screen.getByText('Try again')).toBeOnTheScreen()
     })
@@ -68,9 +68,22 @@ describe('GarageScreen — four states', () => {
 
   it('renders vehicle cards when loaded', async () => {
     mockApi.listVehicles.mockResolvedValue([item(), item({ id: 'v2', nickname: 'The wagon' })])
-    wrap(<GarageScreen />)
+    wrap(<VehiclesScreen />)
     await waitFor(() => {
       expect(screen.getByText('2003 Honda Accord')).toBeOnTheScreen()
+    })
+    expect(screen.getByText('The wagon')).toBeOnTheScreen()
+  })
+
+  it('filters the list by search query', async () => {
+    mockApi.listVehicles.mockResolvedValue([item(), item({ id: 'v2', nickname: 'The wagon' })])
+    wrap(<VehiclesScreen />)
+    await waitFor(() => {
+      expect(screen.getByText('2003 Honda Accord')).toBeOnTheScreen()
+    })
+    fireEvent.changeText(screen.getByPlaceholderText('Find your vehicle'), 'wagon')
+    await waitFor(() => {
+      expect(screen.queryByText('2003 Honda Accord')).toBeNull()
     })
     expect(screen.getByText('The wagon')).toBeOnTheScreen()
   })

@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
-import { Animated, StyleSheet, View, type ImageSourcePropType } from 'react-native'
+import { Animated, View, type ImageSourcePropType } from 'react-native'
 import { Redirect } from 'expo-router'
-import { color } from '@revv/tokens'
+import type { ColorPalette } from '@revv/tokens'
 
 import { useSession } from '@/features/auth/use-session'
 import { hasSeenOnboarding } from '@/features/onboarding/onboarding-store'
 import { durEnter, easeEnter, useReducedMotion } from '@/ui/motion'
+import { useThemedStyles } from '@/ui/theme'
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports -- Metro requires a static require() for images
 const LOGOMARK = require('../assets/brand/logomark.png') as ImageSourcePropType
@@ -42,11 +43,12 @@ export default function Index() {
     return <Redirect href="/onboarding/1" />
   }
 
-  return <Redirect href={status === 'authenticated' ? '/garage' : '/sign-in'} />
+  return <Redirect href={status === 'authenticated' ? '/home' : '/sign-in'} />
 }
 
 /** The Revv logomark on a quiet settle-in — replaces the old bare spinner. */
 function LoadingScreen() {
+  const { styles } = useThemedStyles(buildStyles)
   const reducedMotion = useReducedMotion()
   const opacity = useRef(new Animated.Value(0)).current
   const scale = useRef(new Animated.Value(0.92)).current
@@ -74,7 +76,9 @@ function LoadingScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: color.white },
-  logo: { width: 96, height: 96 },
-})
+function buildStyles(color: ColorPalette) {
+  return {
+    center: { flex: 1, alignItems: 'center' as const, justifyContent: 'center' as const, backgroundColor: color.canvas },
+    logo: { width: 96, height: 96 },
+  }
+}

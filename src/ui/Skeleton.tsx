@@ -1,11 +1,28 @@
 import { useEffect, useRef } from 'react'
 import { Animated, StyleSheet, View, type ViewStyle } from 'react-native'
-import { color, radius, space } from '@revv/tokens'
+import { radius, space, type ColorPalette } from '@revv/tokens'
+
+import { useThemedStyles } from './theme'
 
 export interface SkeletonProps {
   width?: ViewStyle['width']
   height?: number
   style?: ViewStyle
+}
+
+function buildStyles(color: ColorPalette) {
+  return {
+    block: { backgroundColor: color.hairline, borderRadius: radius.sm },
+    card: {
+      backgroundColor: color.canvas,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: color.hairline,
+      borderRadius: radius.md,
+      padding: space.md,
+      gap: space.sm,
+    },
+    divider: { height: StyleSheet.hairlineWidth, backgroundColor: color.hairline },
+  }
 }
 
 /**
@@ -14,6 +31,7 @@ export interface SkeletonProps {
  * never a generic spinner.
  */
 export function Skeleton({ width = '100%', height = 16, style }: SkeletonProps) {
+  const { styles } = useThemedStyles(buildStyles)
   const pulse = useRef(new Animated.Value(0.5)).current
 
   useEffect(() => {
@@ -40,6 +58,7 @@ export function Skeleton({ width = '100%', height = 16, style }: SkeletonProps) 
 
 /** The garage's loading state — three vehicle-card-shaped blocks. */
 export function VehicleCardSkeleton() {
+  const { styles } = useThemedStyles(buildStyles)
   return (
     <View style={styles.card}>
       <Skeleton width="60%" height={20} />
@@ -49,16 +68,3 @@ export function VehicleCardSkeleton() {
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  block: { backgroundColor: color.hairline, borderRadius: radius.sm },
-  card: {
-    backgroundColor: color.white,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: color.hairline,
-    borderRadius: radius.md,
-    padding: space.md,
-    gap: space.sm,
-  },
-  divider: { height: StyleSheet.hairlineWidth, backgroundColor: color.hairline },
-})

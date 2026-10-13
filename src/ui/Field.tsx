@@ -1,9 +1,10 @@
 import { useState } from 'react'
-import { StyleSheet, TextInput, View, type TextInputProps } from 'react-native'
-import { borderWidth, color, radius, space, text } from '@revv/tokens'
+import { TextInput, View, type TextInputProps } from 'react-native'
+import { borderWidth, radius, space, text, type ColorPalette } from '@revv/tokens'
 
 import { AppText } from './Text'
 import { resolveFontFamily } from './typography'
+import { useThemedStyles } from './theme'
 
 export interface FieldProps extends Omit<TextInputProps, 'style'> {
   label: string
@@ -13,12 +14,32 @@ export interface FieldProps extends Omit<TextInputProps, 'style'> {
   data?: boolean
 }
 
+function buildStyles(color: ColorPalette) {
+  return {
+    wrap: { gap: space.xxs, alignSelf: 'stretch' as const },
+    input: {
+      borderWidth: borderWidth.thin,
+      borderColor: color.hairline,
+      borderRadius: radius.xs,
+      paddingHorizontal: space.sm,
+      paddingVertical: space.sm,
+      fontSize: text.body.fontSize,
+      color: color.ink,
+      backgroundColor: color.canvas,
+      minHeight: 48,
+    },
+    inputActive: { borderColor: color.blue },
+    inputError: { borderColor: color.amber },
+  }
+}
+
 /**
  * A labelled text input. One field per concept, stacked with generous space — never a
  * dense grid (design-system.md §Simplicity). Inputs use `radius.xs`; the border goes
  * blue on focus (open-design.ai-DESIGN.md §states). Errors are inline, not a toast.
  */
 export function Field({ label, error, data = false, testID, onFocus, onBlur, ...input }: FieldProps) {
+  const { color, styles } = useThemedStyles(buildStyles)
   const [focused, setFocused] = useState(false)
   const hasError = error != null && error.length > 0
   // A stable id derived from the label so e2e (Maestro) can target the input
@@ -32,7 +53,7 @@ export function Field({ label, error, data = false, testID, onFocus, onBlur, ...
       </AppText>
       <TextInput
         testID={inputTestID}
-        placeholderTextColor={color.hairline}
+        placeholderTextColor={color.placeholder}
         onFocus={(e) => {
           setFocused(true)
           onFocus?.(e)
@@ -57,20 +78,3 @@ export function Field({ label, error, data = false, testID, onFocus, onBlur, ...
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  wrap: { gap: space.xxs, alignSelf: 'stretch' },
-  input: {
-    borderWidth: borderWidth.thin,
-    borderColor: color.hairline,
-    borderRadius: radius.xs,
-    paddingHorizontal: space.sm,
-    paddingVertical: space.sm,
-    fontSize: text.body.fontSize,
-    color: color.ink,
-    backgroundColor: color.white,
-    minHeight: 48,
-  },
-  inputActive: { borderColor: color.blue },
-  inputError: { borderColor: color.amber },
-})

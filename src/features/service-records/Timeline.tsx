@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { StyleSheet, View } from 'react-native'
-import { space } from '@revv/tokens'
+import { Pressable, StyleSheet, View } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
+import { color, radius, space } from '@revv/tokens'
 
 import { AppText, Button, ErrorState, Skeleton } from '@/ui'
 
@@ -56,7 +57,18 @@ export function Timeline({ vehicleId, onAddPress, onEntryPress }: TimelineProps)
           Service history
         </AppText>
         {rows.length > 0 || filtering ? (
-          <Button label="Log a service" variant="text" onPress={onAddPress} />
+          <View style={styles.headerActions}>
+            <Button label="Log a service" variant="text" onPress={onAddPress} />
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Log a service"
+              onPress={onAddPress}
+              style={styles.addButton}
+              hitSlop={8}
+            >
+              <Ionicons name="add" size={20} color={color.white} />
+            </Pressable>
+          </View>
         ) : null}
       </View>
 
@@ -111,6 +123,15 @@ export function Timeline({ vehicleId, onAddPress, onEntryPress }: TimelineProps)
 const styles = StyleSheet.create({
   wrap: { gap: space.sm },
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  headerActions: { flexDirection: 'row', alignItems: 'center', gap: space.sm },
+  addButton: {
+    width: 32,
+    height: 32,
+    borderRadius: radius.full,
+    backgroundColor: color.blue,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   skeletons: { gap: space.sm, paddingVertical: space.sm },
   empty: { gap: space.md, alignItems: 'center', paddingVertical: space.lg },
   emptyText: { textAlign: 'center' },

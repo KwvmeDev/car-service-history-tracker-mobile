@@ -1,17 +1,10 @@
 import { Text as RNText, type TextProps as RNTextProps, type TextStyle } from 'react-native'
-import { color, type TextToken } from '@revv/tokens'
+import { type TextToken } from '@revv/tokens'
 
 import { textStyle, type TextWeightName } from './typography'
+import { useColors } from './theme'
 
 type ToneName = 'primary' | 'secondary' | 'onBlue' | 'onBlueSubtle' | 'attention'
-
-const TONE: Record<ToneName, string> = {
-  primary: color.ink,
-  secondary: color.ink,
-  onBlue: color.white,
-  onBlueSubtle: color.blueSubtle,
-  attention: color.amber,
-}
 
 export interface AppTextProps extends RNTextProps {
   /** A @revv/tokens type token — display | title | heading | body | label | mono | caption. */
@@ -27,7 +20,9 @@ export interface AppTextProps extends RNTextProps {
 /**
  * The only text component in the app. Every string on screen goes through it so type
  * and colour always come from @revv/tokens and never from a raw literal
- * (engineering-standards.md §Frontend, check-design-tokens.mjs).
+ * (engineering-standards.md §Frontend, check-design-tokens.mjs). Colour resolves
+ * through `useColors()` so text stays correct across light/dark (design-system.md
+ * §Color law 4).
  */
 export function AppText({
   token = 'body',
@@ -37,6 +32,14 @@ export function AppText({
   style,
   ...rest
 }: AppTextProps) {
+  const color = useColors()
+  const TONE: Record<ToneName, string> = {
+    primary: color.ink,
+    secondary: color.ink,
+    onBlue: color.white,
+    onBlueSubtle: color.blueSubtle,
+    attention: color.amber,
+  }
   const resolved = textStyle(token, { weight, data })
   const base: TextStyle = {
     fontFamily: resolved.fontFamily,

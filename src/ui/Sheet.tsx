@@ -8,10 +8,11 @@ import {
   StyleSheet,
   View,
 } from 'react-native'
-import { color, radius, shadow, space } from '@revv/tokens'
+import { radius, shadow, space, type ColorPalette } from '@revv/tokens'
 
 import { AppText } from './Text'
 import { enterTiming, exitTiming } from './motion'
+import { useThemedStyles } from './theme'
 
 export interface SheetProps {
   visible: boolean
@@ -19,6 +20,35 @@ export interface SheetProps {
   /** Every sheet has a title and a dismiss control (design-system.md §Simplicity). */
   title: string
   children: ReactNode
+}
+
+function buildStyles(color: ColorPalette) {
+  return {
+    fill: { flex: 1, justifyContent: 'flex-end' as const },
+    scrim: { backgroundColor: color.scrim },
+    sheet: {
+      backgroundColor: color.canvas,
+      borderTopLeftRadius: radius.lg,
+      borderTopRightRadius: radius.lg,
+      padding: space.xl,
+      paddingBottom: space.band,
+      gap: space.md,
+      maxHeight: '88%' as const,
+      ...shadow.xl.native,
+    },
+    grabber: {
+      alignSelf: 'center' as const,
+      width: 36,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: color.hairline,
+    },
+    header: {
+      flexDirection: 'row' as const,
+      alignItems: 'center' as const,
+      justifyContent: 'space-between' as const,
+    },
+  }
 }
 
 /**
@@ -30,6 +60,7 @@ export interface SheetProps {
  * component sizes to its content up to ~88% of the screen.
  */
 export function Sheet({ visible, onDismiss, title, children }: SheetProps) {
+  const { styles } = useThemedStyles(buildStyles)
   const slide = useRef(new Animated.Value(0)).current
 
   useEffect(() => {
@@ -54,9 +85,7 @@ export function Sheet({ visible, onDismiss, title, children }: SheetProps) {
           <Animated.View style={[styles.sheet, { transform: [{ translateY }] }]}>
             <View style={styles.grabber} />
             <View style={styles.header}>
-              <AppText token="title">
-                {title}
-              </AppText>
+              <AppText token="title">{title}</AppText>
               <Pressable accessibilityRole="button" accessibilityLabel="Close" onPress={onDismiss}>
                 <AppText token="body" tone="secondary">
                   Close
@@ -70,26 +99,3 @@ export function Sheet({ visible, onDismiss, title, children }: SheetProps) {
     </Modal>
   )
 }
-
-const styles = StyleSheet.create({
-  fill: { flex: 1, justifyContent: 'flex-end' },
-  scrim: { backgroundColor: color.scrim },
-  sheet: {
-    backgroundColor: color.white,
-    borderTopLeftRadius: radius.lg,
-    borderTopRightRadius: radius.lg,
-    padding: space.xl,
-    paddingBottom: space.band,
-    gap: space.md,
-    maxHeight: '88%',
-    ...shadow.xl.native,
-  },
-  grabber: {
-    alignSelf: 'center',
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: color.hairline,
-  },
-  header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-})

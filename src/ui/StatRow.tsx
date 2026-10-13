@@ -1,8 +1,9 @@
 import { Fragment } from 'react'
 import { StyleSheet, View } from 'react-native'
-import { color, space } from '@revv/tokens'
+import { space, type ColorPalette } from '@revv/tokens'
 
 import { AppText } from './Text'
+import { useThemedStyles } from './theme'
 
 export interface Stat {
   label: string
@@ -16,11 +17,20 @@ export interface StatRowProps {
   surface?: 'blue' | 'white'
 }
 
+function buildStyles(color: ColorPalette) {
+  return {
+    row: { flexDirection: 'row' as const, alignItems: 'flex-start' as const },
+    cell: { flex: 1, gap: space.xxs },
+    rule: { width: StyleSheet.hairlineWidth, alignSelf: 'stretch' as const, backgroundColor: color.hairline },
+  }
+}
+
 /**
  * design-system.md §Core components — the stats row under a card's hairline divider:
  * a mono value over a caption label, evenly spread, thin vertical rules between.
  */
 export function StatRow({ stats, surface = 'blue' }: StatRowProps) {
+  const { styles } = useThemedStyles(buildStyles)
   const onBlue = surface === 'blue'
   return (
     <View style={styles.row}>
@@ -40,9 +50,3 @@ export function StatRow({ stats, surface = 'blue' }: StatRowProps) {
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  row: { flexDirection: 'row', alignItems: 'flex-start' },
-  cell: { flex: 1, gap: space.xxs },
-  rule: { width: StyleSheet.hairlineWidth, alignSelf: 'stretch', backgroundColor: color.hairline },
-})

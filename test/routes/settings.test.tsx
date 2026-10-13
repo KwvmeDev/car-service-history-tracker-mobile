@@ -5,7 +5,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react-nativ
 import * as prefsApi from '@/features/notifications/preferences-api'
 import type { NotificationPreferences } from '@/features/notifications/types'
 
-import Settings from '../../app/settings'
+import Settings from '../../app/(tabs)/settings'
 
 const mockSignOut = jest.fn()
 const mockUseSession = jest.fn()

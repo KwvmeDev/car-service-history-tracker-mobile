@@ -1,18 +1,22 @@
 import { useCallback, useState } from 'react'
-import { Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native'
-import { Stack, useRouter } from 'expo-router'
-import { color, space } from '@revv/tokens'
+import { Pressable, RefreshControl, ScrollView, View } from 'react-native'
+import { useRouter } from 'expo-router'
+import { space, type ColorPalette } from '@revv/tokens'
 
-import { AppText, EmptyState, ErrorState, VehicleCardSkeleton } from '@/ui'
+import { AppText, ErrorState, SearchBar, VehicleCardSkeleton, useThemedStyles } from '@/ui'
+import { GarageEmptyState } from '@/features/vehicles/GarageEmptyState'
 import { GarageSortControl } from '@/features/vehicles/GarageSortControl'
+import { matchesVehicleQuery } from '@/features/vehicles/search'
 import type { GarageSort } from '@/features/vehicles/api'
 import { loadGarageSort, saveGarageSort } from '@/features/vehicles/garage-sort'
 import { VehicleCard } from '@/features/vehicles/VehicleCard'
 import { useVehicles } from '@/features/vehicles/hooks'
 
-export default function GarageScreen() {
+export default function VehiclesScreen() {
+  const { color, styles } = useThemedStyles(buildStyles)
   const router = useRouter()
   const [sort, setSort] = useState<GarageSort>(() => loadGarageSort())
+  const [query, setQuery] = useState('')
   const { data, isLoading, isError, refetch, isRefetching } = useVehicles(sort)
 
   const changeSort = useCallback((next: GarageSort) => {
@@ -35,27 +39,17 @@ export default function GarageScreen() {
   // plain scrolling list beats a virtualised FlatList — simpler, and it renders
   // deterministically in tests.
   const vehicles = data ?? []
+  const searching = query.trim().length > 0
+  const filtered = vehicles.filter((v) => matchesVehicleQuery(v, query))
 
   return (
     <View style={styles.screen}>
-      <Stack.Screen
-        options={{
-          headerRight: () => (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel="Settings"
-              onPress={() => {
-                router.push('/settings')
-              }}
-              hitSlop={8}
-            >
-              <AppText token="label" tone="onBlue">
-                Settings
-              </AppText>
-            </Pressable>
-          ),
-        }}
-      />
+      <View style={styles.header}>
+        <AppText token="title">Vehicles</AppText>
+        {vehicles.length > 0 ? (
+          <SearchBar value={query} onChangeText={setQuery} placeholder="Find your vehicle" style={styles.search} />
+        ) : null}
+      </View>
 
       {isLoading ? (
         <View style={styles.list}>
@@ -70,13 +64,7 @@ export default function GarageScreen() {
           retrying={isRefetching}
         />
       ) : vehicles.length === 0 ? (
-        <EmptyState
-          glyph="🔑"
-          title="Your garage is empty"
-          body="Add your first vehicle to start building its record."
-          actionLabel="Add a vehicle"
-          onAction={addVehicle}
-        />
+        <GarageEmptyState onAdd={addVehicle} />
       ) : (
         <ScrollView
           contentContainerStyle={styles.list}
@@ -88,23 +76,25 @@ export default function GarageScreen() {
             />
           }
         >
-          {vehicles.length >= 2 ? (
+          {!searching && vehicles.length >= 2 ? (
             <GarageSortControl value={sort} onChange={changeSort} />
           ) : null}
-          {vehicles.map((vehicle) => (
-            <VehicleCard
-              key={vehicle.id}
-              vehicle={vehicle}
-              onPress={() => {
-                openVehicle(vehicle.id)
-              }}
-            />
-          ))}
-          <Pressable
-            accessibilityRole="button"
-            onPress={addVehicle}
-            style={styles.addRow}
-          >
+          {searching && filtered.length === 0 ? (
+            <AppText token="body" tone="secondary" style={styles.noResults}>
+              {`No vehicles match "${query}".`}
+            </AppText>
+          ) : (
+            filtered.map((vehicle) => (
+              <VehicleCard
+                key={vehicle.id}
+                vehicle={vehicle}
+                onPress={() => {
+                  openVehicle(vehicle.id)
+                }}
+              />
+            ))
+          )}
+          <Pressable accessibilityRole="button" onPress={addVehicle} style={styles.addRow}>
             <AppText token="body" weight="medium">
               + Add a vehicle
             </AppText>
@@ -115,8 +105,13 @@ export default function GarageScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  screen: { flex: 1 },
-  list: { padding: space.md, gap: space.md },
-  addRow: { paddingVertical: space.md, alignItems: 'center' },
-})
+function buildStyles(color: ColorPalette) {
+  return {
+    screen: { flex: 1, backgroundColor: color.canvas },
+    header: { paddingHorizontal: space.md, paddingTop: space.lg, paddingBottom: space.sm, gap: space.md },
+    search: { marginTop: space.xxs },
+    list: { padding: space.md, paddingBottom: space.xxxl * 2, gap: space.md },
+    noResults: { textAlign: 'center' as const, paddingVertical: space.xl },
+    addRow: { paddingVertical: space.md, alignItems: 'center' as const },
+  }
+}

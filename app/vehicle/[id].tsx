@@ -1,11 +1,13 @@
 import { useMemo, useRef, useState } from 'react'
-import { Animated, Image, ScrollView, StyleSheet, View } from 'react-native'
+import { Animated, Image, Pressable, ScrollView, StyleSheet, View } from 'react-native'
 import { Stack, useLocalSearchParams } from 'expo-router'
-import { color, radius, space } from '@revv/tokens'
+import { Ionicons } from '@expo/vector-icons'
+import { radius, space, type ColorPalette } from '@revv/tokens'
 
-import { AppText, Badge, Button, CountUp, ErrorState, Skeleton, StatRow } from '@/ui'
+import { AppText, Badge, Button, Card, CountUp, ErrorState, Skeleton, StatRow, useThemedStyles } from '@/ui'
 import { enterTiming } from '@/ui/motion'
 import { isPending } from '@/data/pending'
+import { AuctionHistoryLink } from '@/features/vehicles/AuctionHistoryLink'
 import { EditVehicleSheet } from '@/features/vehicles/EditVehicleSheet'
 import { useDecodeVin, useVehicle } from '@/features/vehicles/hooks'
 import { vehicleTitle } from '@/features/vehicles/types'
@@ -22,7 +24,60 @@ import { ReportsSheet } from '@/features/reports/ReportsSheet'
 import { ShopAccessSheet } from '@/features/mechanic/ShopAccessSheet'
 import { ShopSubmissions } from '@/features/mechanic/ShopSubmissions'
 
+const PHOTO_HEIGHT = 180
+
+function buildStyles(color: ColorPalette) {
+  return {
+    screen: { flex: 1, backgroundColor: color.canvas },
+    content: { padding: space.md, gap: space.md },
+    headerSkeleton: {
+      backgroundColor: color.canvas,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: color.hairline,
+      borderRadius: radius.md,
+      padding: space.md,
+      gap: space.sm,
+      margin: space.md,
+    },
+    heroCard: { gap: space.sm },
+    photo: { width: '100%' as const, height: PHOTO_HEIGHT, borderRadius: radius.sm },
+    photoPlaceholder: {
+      width: '100%' as const,
+      height: PHOTO_HEIGHT,
+      borderRadius: radius.sm,
+      backgroundColor: color.blueWash,
+      alignItems: 'center' as const,
+      justifyContent: 'center' as const,
+    },
+    identityRow: {
+      flexDirection: 'row' as const,
+      justifyContent: 'space-between' as const,
+      alignItems: 'flex-start' as const,
+      gap: space.sm,
+    },
+    identity: { flex: 1, gap: space.xxs },
+    titleRow: { flexDirection: 'row' as const, alignItems: 'center' as const, gap: space.xs },
+    titleText: { flexShrink: 1 },
+    editButton: {
+      width: 36,
+      height: 36,
+      borderRadius: radius.sm,
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: color.hairline,
+      alignItems: 'center' as const,
+      justifyContent: 'center' as const,
+    },
+    divider: { height: StyleSheet.hairlineWidth, backgroundColor: color.hairline },
+    statsRow: { flexDirection: 'row' as const, alignItems: 'flex-start' as const },
+    stat: { flex: 1, gap: space.xxs },
+    rule: { width: StyleSheet.hairlineWidth, alignSelf: 'stretch' as const, backgroundColor: color.hairline },
+    reportCta: { gap: space.xs, marginTop: space.sm },
+    reportHint: { textAlign: 'center' as const },
+  }
+}
+
 export default function VehicleProfileScreen() {
+  const { color, styles } = useThemedStyles(buildStyles)
   const { id } = useLocalSearchParams<{ id: string }>()
   const { data: vehicle, isLoading, isError, refetch, isPlaceholderData } = useVehicle(id)
   const decode = useDecodeVin(id)
@@ -88,85 +143,93 @@ export default function VehicleProfileScreen() {
       <Stack.Screen options={{ title }} />
 
       <Animated.View
-        nativeID={`vehicle-card-${vehicle.id}`}
-        style={[
-          styles.header,
-          {
-            opacity: printIn,
-            transform: [
-              { translateY: printIn.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) },
-            ],
-          },
-        ]}
+        style={{
+          gap: space.sm,
+          opacity: printIn,
+          transform: [
+            { translateY: printIn.interpolate({ inputRange: [0, 1], outputRange: [10, 0] }) },
+          ],
+        }}
       >
-        <View style={styles.identityRow}>
+        <Card surface="outline" nativeID={`vehicle-card-${vehicle.id}`} style={styles.heroCard}>
           {vehicle.photoUrl != null ? (
             <Image source={{ uri: vehicle.photoUrl }} style={styles.photo} />
-          ) : null}
+          ) : (
+            <View style={styles.photoPlaceholder}>
+              <Ionicons name="car-sport-outline" size={40} color={color.hairline} />
+            </View>
+          )}
+
+          <View style={styles.divider} />
+
+          <View style={styles.statsRow}>
+            <View style={styles.stat}>
+              <CountUp value={vehicle.currentMileage ?? 0} />
+              <AppText token="caption" tone="secondary">
+                Mileage{vehicle.mileageUnit === 'km' ? ' (km)' : ''}
+              </AppText>
+            </View>
+            <View style={styles.rule} />
+            <View style={styles.stat}>
+              <CountUp value={recordCount} />
+              <AppText token="caption" tone="secondary">
+                Records
+              </AppText>
+            </View>
+            <View style={styles.rule} />
+            <View style={styles.stat}>
+              <StatRow
+                surface="white"
+                stats={[
+                  {
+                    label: 'Owned since',
+                    value: vehicle.ownedSince != null ? String(new Date(vehicle.ownedSince).getFullYear()) : '—',
+                  },
+                ]}
+              />
+            </View>
+          </View>
+        </Card>
+
+        <View style={styles.identityRow}>
           <View style={styles.identity}>
-            <AppText token="display" tone="onBlue">
-              {title}
-            </AppText>
+            <View style={styles.titleRow}>
+              <AppText token="display" numberOfLines={1} style={styles.titleText}>
+                {title}
+              </AppText>
+              {pending ? (
+                <Badge label="Not synced" status="due" />
+              ) : reminderAttention !== 'ok' ? (
+                <Badge
+                  label={reminderAttention === 'overdue' ? 'Service overdue' : 'Service due'}
+                  status={reminderAttention === 'overdue' ? 'overdue' : 'due'}
+                />
+              ) : null}
+            </View>
+            {vehicle.year != null || vehicle.make != null ? (
+              <AppText token="body" tone="secondary">
+                {[vehicle.year, vehicle.make, vehicle.model, vehicle.trim].filter(Boolean).join(' ')}
+              </AppText>
+            ) : null}
             {vehicle.vin != null ? (
-              <AppText token="mono" tone="onBlueSubtle">
+              <AppText token="mono" tone="secondary">
                 {vehicle.vin}
               </AppText>
             ) : null}
           </View>
-          {pending ? (
-            <Badge label="Not synced" status="due" />
-          ) : reminderAttention !== 'ok' ? (
-            <Badge
-              label={reminderAttention === 'overdue' ? 'Service overdue' : 'Service due'}
-              status={reminderAttention === 'overdue' ? 'overdue' : 'due'}
-            />
-          ) : null}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Edit vehicle"
+            onPress={() => {
+              setEditingVehicle(true)
+            }}
+            style={styles.editButton}
+            hitSlop={8}
+          >
+            <Ionicons name="create-outline" size={20} color={color.blue} />
+          </Pressable>
         </View>
 
-        {vehicle.year != null || vehicle.make != null ? (
-          <AppText token="body" tone="onBlueSubtle">
-            {[vehicle.year, vehicle.make, vehicle.model, vehicle.trim].filter(Boolean).join(' ')}
-          </AppText>
-        ) : null}
-
-        <View style={styles.divider} />
-
-        <View style={styles.statsRow}>
-          <View style={styles.stat}>
-            <CountUp value={vehicle.currentMileage ?? 0} tone="onBlue" />
-            <AppText token="caption" tone="onBlueSubtle">
-              Mileage{vehicle.mileageUnit === 'km' ? ' (km)' : ''}
-            </AppText>
-          </View>
-          <View style={styles.rule} />
-          <View style={styles.stat}>
-            <CountUp value={recordCount} tone="onBlue" />
-            <AppText token="caption" tone="onBlueSubtle">
-              Records
-            </AppText>
-          </View>
-          <View style={styles.rule} />
-          <View style={styles.stat}>
-            <StatRow
-              stats={[
-                {
-                  label: 'Owned since',
-                  value: vehicle.ownedSince != null ? String(new Date(vehicle.ownedSince).getFullYear()) : '—',
-                },
-              ]}
-            />
-          </View>
-        </View>
-      </Animated.View>
-
-      <View style={styles.actions}>
-        <Button
-          label="Edit vehicle"
-          variant="secondary"
-          onPress={() => {
-            setEditingVehicle(true)
-          }}
-        />
         {vehicle.vin != null ? (
           <Button
             label={decode.isPending ? 'Decoding…' : 'Re-decode VIN'}
@@ -177,7 +240,8 @@ export default function VehicleProfileScreen() {
             }}
           />
         ) : null}
-      </View>
+        {vehicle.vin != null ? <AuctionHistoryLink vin={vehicle.vin} /> : null}
+      </Animated.View>
 
       <ShopSubmissions vehicleId={id} />
 
@@ -199,7 +263,8 @@ export default function VehicleProfileScreen() {
 
       <View style={styles.reportCta}>
         <Button
-          label="Resale report"
+          label="Generate resale report"
+          icon={<Ionicons name="document-text-outline" size={18} color={color.white} />}
           block
           onPress={() => {
             setReportsOpen(true)
@@ -296,28 +361,3 @@ export default function VehicleProfileScreen() {
     </ScrollView>
   )
 }
-
-const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: color.white },
-  content: { padding: space.md, gap: space.md },
-  header: { backgroundColor: color.blue, borderRadius: radius.md, padding: space.md, gap: space.sm },
-  headerSkeleton: {
-    backgroundColor: color.white,
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: color.hairline,
-    borderRadius: radius.md,
-    padding: space.md,
-    gap: space.sm,
-    margin: space.md,
-  },
-  identityRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: space.xs },
-  photo: { width: 56, height: 56, borderRadius: radius.sm, backgroundColor: 'rgba(255,255,255,0.15)' },
-  identity: { flex: 1, gap: space.xxs },
-  divider: { height: StyleSheet.hairlineWidth, backgroundColor: color.hairline },
-  statsRow: { flexDirection: 'row', alignItems: 'flex-start' },
-  stat: { flex: 1, gap: space.xxs },
-  rule: { width: StyleSheet.hairlineWidth, alignSelf: 'stretch', backgroundColor: color.hairline },
-  actions: { flexDirection: 'row', gap: space.sm, alignItems: 'center' },
-  reportCta: { gap: space.xs, marginTop: space.sm },
-  reportHint: { textAlign: 'center' },
-})

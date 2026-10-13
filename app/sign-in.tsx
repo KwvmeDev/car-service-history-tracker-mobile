@@ -16,8 +16,8 @@ export default function SignInScreen() {
   const [error, setError] = useState<string | null>(null)
   const [challenge, setChallenge] = useState(false)
 
-  const toGarage = () => {
-    router.replace('/garage')
+  const toHome = () => {
+    router.replace('/home')
   }
 
   const submit = () => {
@@ -29,7 +29,7 @@ export default function SignInScreen() {
         if (result.ok && 'twoFactorRequired' in result) {
           setChallenge(true)
         } else if (result.ok) {
-          toGarage()
+          toHome()
         } else {
           setError(result.message)
         }
@@ -48,7 +48,7 @@ export default function SignInScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
-          <TwoFactorChallenge onVerified={toGarage} />
+          <TwoFactorChallenge onVerified={toHome} />
           <Button
             label="Back to sign in"
             variant="text"
@@ -104,7 +104,7 @@ export default function SignInScreen() {
 
         <SocialButtons
           onSignedIn={() => {
-            router.replace('/garage')
+            router.replace('/home')
           }}
         />
 
