@@ -5,7 +5,7 @@
 import 'react-native-get-random-values'
 
 import { useEffect } from 'react'
-import { View } from 'react-native'
+import { View, useColorScheme } from 'react-native'
 import {
   AlbertSans_400Regular,
   AlbertSans_500Medium,
@@ -24,10 +24,13 @@ import { QueryProvider } from '@/data/QueryProvider'
 import { useSession } from '@/features/auth/use-session'
 import { usePushRegistration } from '@/features/notifications/use-push-registration'
 import { configureReminderNotifications } from '@/features/reminders/notifications'
+import { applyThemePreference, loadThemePreference } from '@/features/settings/appearance'
+import { statusBarStyle } from '@/ui/status-bar-style'
 import { useColors } from '@/ui/theme'
 import { resolveFontFamily } from '@/ui/typography'
 
 configureReminderNotifications()
+applyThemePreference(loadThemePreference())
 
 // Root layout. Screen chrome pulls colour and type from @revv/tokens — no raw literals.
 // The splash is held until Albert Sans (400/500/600/700) and JetBrains Mono (400) are
@@ -46,6 +49,7 @@ const AUTH_ROUTES = new Set(['sign-in', 'sign-up', 'verify-email', 'onboarding']
  */
 function AuthGate() {
   const color = useColors()
+  const scheme = useColorScheme()
   const { status } = useSession()
   const segments = useSegments()
   const router = useRouter()
@@ -63,7 +67,9 @@ function AuthGate() {
   }, [status, segments, router])
 
   return (
-    <Stack
+    <>
+      <StatusBar style={statusBarStyle(segments, scheme === 'dark')} />
+      <Stack
       screenOptions={{
         headerStyle: { backgroundColor: color.blue },
         headerTintColor: color.white,
@@ -88,7 +94,8 @@ function AuthGate() {
       />
       <Stack.Screen name="vehicle/[id]" options={{ title: '' }} />
       <Stack.Screen name="dev-health" options={{ title: 'Api status' }} />
-    </Stack>
+      </Stack>
+    </>
   )
 }
 
@@ -116,7 +123,6 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <QueryProvider>
         <SafeAreaProvider>
-          <StatusBar style="light" />
           <AuthGate />
         </SafeAreaProvider>
       </QueryProvider>

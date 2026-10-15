@@ -2,8 +2,9 @@ import { StyleSheet, useColorScheme } from 'react-native'
 import { color, colorDark, type ColorPalette } from '@revv/tokens'
 
 /**
- * The active palette, resolved from the OS setting (no manual in-app toggle —
- * design-system.md §Color law 4). `color` static imports elsewhere in the app are
+ * The active palette: the OS setting by default, or the user's pinned choice from
+ * Settings → Appearance (applied via `Appearance.setColorScheme`, so
+ * `useColorScheme()` already reflects it — design-system.md §Color law 4). `color` static imports elsewhere in the app are
  * the light palette baked in at module-load time and can't react to this; any
  * component whose styling depends on colour should go through this instead.
  */

@@ -1,4 +1,5 @@
 import type { ReactNode } from 'react'
+import { Appearance } from 'react-native'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { fireEvent, render, screen, waitFor } from '@testing-library/react-native'
 
@@ -51,6 +52,17 @@ beforeEach(() => {
 })
 
 describe('Settings screen', () => {
+  it('picking Dark in Appearance pins the app to dark', () => {
+    const setScheme = jest.spyOn(Appearance, 'setColorScheme').mockImplementation(() => undefined)
+    wrap(<Settings />)
+    expect(screen.getByText('Appearance')).toBeTruthy()
+    fireEvent.press(screen.getByText('Dark'))
+    expect(setScheme).toHaveBeenLastCalledWith('dark')
+    fireEvent.press(screen.getByText('System'))
+    expect(setScheme).toHaveBeenLastCalledWith('unspecified')
+    setScheme.mockRestore()
+  })
+
   it('renders the four sections with account and about details', async () => {
     wrap(<Settings />)
     // the section headers and account details render synchronously

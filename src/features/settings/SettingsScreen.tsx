@@ -3,7 +3,7 @@ import { Linking, ScrollView, View } from 'react-native'
 import Constants from 'expo-constants'
 import { space, type ColorPalette } from '@revv/tokens'
 
-import { AppText, Badge, Button, ErrorState, Field, Skeleton, useThemedStyles } from '@/ui'
+import { AppText, Badge, Button, ErrorState, Field, SegmentedControl, Skeleton, useThemedStyles } from '@/ui'
 import { authClient } from '@/features/auth/auth-client'
 import { useSignOut } from '@/features/auth/use-session'
 import {
@@ -13,7 +13,14 @@ import {
 import { TwoFactorEnrollSheet } from '@/features/security/TwoFactorEnrollSheet'
 import { useTwoFactor } from '@/features/security/use-two-factor'
 
+import { useThemePreference, type ThemePreference } from './appearance'
 import { SettingsSection, SettingsRow, SettingsToggle } from './sections'
+
+const APPEARANCE_OPTIONS: readonly { value: ThemePreference; label: string }[] = [
+  { value: 'system', label: 'System' },
+  { value: 'light', label: 'Light' },
+  { value: 'dark', label: 'Dark' },
+]
 
 const PRIVACY_URL = 'https://revv.app/privacy'
 const TERMS_URL = 'https://revv.app/terms'
@@ -37,6 +44,7 @@ export function SettingsScreen() {
   const prefs = useNotificationPreferences()
   const updatePrefs = useUpdateNotificationPreferences()
   const tf = useTwoFactor()
+  const [appearance, setAppearance] = useThemePreference()
 
   const [enrollOpen, setEnrollOpen] = useState(false)
   const [disablePassword, setDisablePassword] = useState('')
@@ -68,6 +76,21 @@ export function SettingsScreen() {
             <SettingsRow label="Delete account" hint="Coming soon — contact support to close your account" />
           </>
         )}
+      </SettingsSection>
+
+      {/* Appearance */}
+      <SettingsSection title="Appearance">
+        <View style={[styles.pad, styles.gap]}>
+          <SegmentedControl
+            options={APPEARANCE_OPTIONS}
+            value={appearance}
+            onChange={setAppearance}
+            accessibilityLabel="Appearance"
+          />
+          <AppText token="caption" tone="secondary">
+            System follows your phone&apos;s light or dark setting.
+          </AppText>
+        </View>
       </SettingsSection>
 
       {/* Notifications */}
