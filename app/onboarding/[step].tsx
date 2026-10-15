@@ -1,4 +1,4 @@
-import { Image, Pressable, View } from 'react-native'
+import { Image, Pressable, View, useColorScheme } from 'react-native'
 import { Redirect, useLocalSearchParams, useRouter } from 'expo-router'
 import { radius, space, type ColorPalette } from '@revv/tokens'
 
@@ -54,7 +54,8 @@ function buildStyles(color: ColorPalette) {
 }
 
 export default function OnboardingStepScreen() {
-  const { styles } = useThemedStyles(buildStyles)
+  const { color, styles } = useThemedStyles(buildStyles)
+  const dark = useColorScheme() === 'dark'
   const { step } = useLocalSearchParams<{ step: string }>()
   const router = useRouter()
   const index = Number(step) - 1
@@ -92,7 +93,12 @@ export default function OnboardingStepScreen() {
       </Pressable>
 
       <View style={styles.imageWrap}>
-        <Image source={data.image} style={styles.image} resizeMode="contain" />
+        <Image
+          source={data.image}
+          style={styles.image}
+          resizeMode="contain"
+          tintColor={data.lineArt && dark ? color.ink : undefined}
+        />
       </View>
 
       <View style={styles.content}>

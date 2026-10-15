@@ -101,7 +101,7 @@ export function Timeline({ vehicleId, onAddPress, onEntryPress }: TimelineProps)
           </View>
         )
       ) : (
-        <View>
+        <View style={styles.entries}>
           {rows.map((record, index) => (
             <TimelineEntry
               key={record.id}
@@ -132,6 +132,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  entries: { gap: space.sm },
   skeletons: { gap: space.sm, paddingVertical: space.sm },
   empty: { gap: space.md, alignItems: 'center', paddingVertical: space.lg },
   emptyText: { textAlign: 'center' },

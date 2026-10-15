@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { Animated, View, type ImageSourcePropType } from 'react-native'
+import { Animated, View, useColorScheme, type ImageSourcePropType } from 'react-native'
 import { radius, space, type ColorPalette } from '@revv/tokens'
 
 import { AppText, Button, useThemedStyles } from '@/ui'
@@ -15,7 +15,8 @@ const CAR = require('../../../assets/illustrations/garage-empty.png') as ImageSo
  * this exact card+illustration treatment only applies to the garage-empty moment.
  */
 export function GarageEmptyState({ onAdd }: { onAdd: () => void }) {
-  const { styles } = useThemedStyles(buildStyles)
+  const { color, styles } = useThemedStyles(buildStyles)
+  const dark = useColorScheme() === 'dark'
   const reducedMotion = useReducedMotion()
   const float = useRef(new Animated.Value(0)).current
 
@@ -41,6 +42,7 @@ export function GarageEmptyState({ onAdd }: { onAdd: () => void }) {
         <Animated.Image
           source={CAR}
           resizeMode="contain"
+          tintColor={dark ? color.ink : undefined}
           style={[styles.illustration, { transform: [{ translateY }] }]}
         />
         <AppText token="title" style={styles.title}>

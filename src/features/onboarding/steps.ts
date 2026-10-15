@@ -3,6 +3,8 @@ import type { ImageSourcePropType } from 'react-native'
 export interface OnboardingStep {
   key: string
   image: ImageSourcePropType
+  /** Transparent line art with no background of its own — lightened in dark mode. */
+  lineArt?: boolean
   eyebrow: string
   title: string
   body: string
@@ -21,6 +23,7 @@ export const ONBOARDING_STEPS: OnboardingStep[] = [
     key: '1',
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- Metro requires a static require() for images
     image: require('../../../assets/onboarding/step-1-vin.png') as ImageSourcePropType,
+    lineArt: true,
     eyebrow: 'Getting started',
     title: 'Add your car by VIN',
     body: 'Revv decodes the year, make, model and trim from the VIN and starts the record.',
