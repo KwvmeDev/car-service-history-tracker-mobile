@@ -1228,6 +1228,7 @@ export interface paths {
                                 year: number | null;
                             };
                             masthead: {
+                                photoUrl?: string | null;
                                 /** @enum {string} */
                                 preparedWith: "Revv";
                                 title: string;
@@ -1268,6 +1269,7 @@ export interface paths {
                             reportId: string;
                             /** @enum {number} */
                             schemaVersion: 1;
+                            shareUrl: string;
                             timeline: {
                                 count: number;
                                 entries: {

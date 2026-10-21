@@ -2945,6 +2945,12 @@
                     "masthead": {
                       "additionalProperties": false,
                       "properties": {
+                        "photoUrl": {
+                          "type": [
+                            "string",
+                            "null"
+                          ]
+                        },
                         "preparedWith": {
                           "enum": [
                             "Revv"
@@ -3141,6 +3147,9 @@
                       ],
                       "type": "number"
                     },
+                    "shareUrl": {
+                      "type": "string"
+                    },
                     "timeline": {
                       "additionalProperties": false,
                       "properties": {
@@ -3319,6 +3328,7 @@
                     "reportId",
                     "generatedAt",
                     "pdfReady",
+                    "shareUrl",
                     "masthead",
                     "identity",
                     "ownership",
